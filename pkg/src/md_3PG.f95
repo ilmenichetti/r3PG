@@ -620,11 +620,23 @@ contains
                                 if( maxval( mort_manag(i) * managementInputs( t_n(i),3:5,i)) > 1.d0 ) then
 
                                     if( f_dormant(month, leafgrow(i), leaffall(i)) .eqv. .TRUE. ) then
-                                        biom_foliage_debt(i) = 0.d0
+                                    !update litterfalls after management
+									    biom_loss_foliage(i) = biom_loss_foliage(i) + biom_foliage_debt(i)
+									
+										biom_foliage_debt(i) = 0.d0
                                     else
-                                        biom_foliage(i) = 0.d0
+                                    !update litterfalls after management
+									    biom_loss_foliage(i) = biom_loss_foliage(i) + biom_foliage(i)
+									    
+										biom_foliage(i) = 0.d0
                                     end if
 
+									!update litterfalls after management
+									! biom_loss_foliage(i) = biom_loss_foliage(i) + biom_foliage(i)
+									biom_loss_root(i) = biom_loss_root(i) + biom_root(i)
+                                    biom_loss_stem(i) = biom_loss_stem(i) + biom_stem(i)*0.9d0
+                                    biom_loss_branches(i) = biom_loss_branches(i) + biom_stem(i)*0.1d0
+									
                                     biom_root(i) = 0.d0
                                     biom_stem(i) = 0.d0
                                     stems_n(i) = 0.d0
@@ -632,13 +644,27 @@ contains
                                 else
 
                                     if( f_dormant(month, leafgrow(i), leaffall(i)) .eqv. .TRUE.) then
-
+										!update litterfalls after management
+									    biom_loss_foliage(i) = biom_loss_foliage(i) + biom_foliage_debt(i) * &
+										(mort_manag(i) * managementInputs(t_n(i),5,i) )
+									
                                         biom_foliage_debt(i) = biom_foliage_debt(i) * (1.d0 - mort_manag(i) * &
                                             managementInputs(t_n(i),5,i) )
                                     else
+										!update litterfalls after management
+									    biom_loss_foliage(i) = biom_loss_foliage(i) + biom_foliage(i) * &
+										(mort_manag(i) * managementInputs(t_n(i),5,i) )
 
                                         biom_foliage(i) = biom_foliage(i) * (1.d0 - mort_manag(i) * managementInputs(t_n(i),5,i) )
                                     end if
+
+									!update litterfalls after management
+									biom_loss_root(i) = biom_loss_root(i) + biom_root(i) * &
+									 (mort_manag(i) * managementInputs(t_n(i),4,i) )
+                                    biom_loss_stem(i) = biom_loss_stem(i) + biom_stem(i)*0.9d0 * &
+									 (mort_manag(i) * managementInputs(t_n(i),4,i) )
+                                    biom_loss_branches(i) = biom_loss_branches(i) + biom_stem(i)*0.1d0 * &
+									 (mort_manag(i) * managementInputs(t_n(i),4,i) )
 
                                     biom_root(i) = biom_root(i)  * (1.d0 - mort_manag(i) * managementInputs(t_n(i),4,i) )
                                     biom_stem(i) = biom_stem(i)  * (1.d0 - mort_manag(i) * managementInputs(t_n(i),3,i) )
@@ -697,7 +723,13 @@ contains
                         ! mort_stress(i) = ceiling( mort_stress(i) )
                         mort_stress(i) = min( mort_stress(i), stems_n(i)) ! Mortality can't be more than available
 
-                        biom_foliage(i) = biom_foliage(i) - mF(i) * mort_stress(i) * (biom_foliage(i) / stems_n(i))
+                        !update litterfalls after mortality (assuming no foliage and root litterfall)
+						biom_loss_stem(i) = biom_loss_stem(i) + 0.9d0 * &
+							mS(i) * mort_stress(i) * (biom_stem(i) / stems_n(i))
+                        biom_loss_branches(i) = biom_loss_branches(i) + 0.1d0 * &
+							mS(i) * mort_stress(i) * (biom_stem(i) / stems_n(i))
+									 
+						biom_foliage(i) = biom_foliage(i) - mF(i) * mort_stress(i) * (biom_foliage(i) / stems_n(i))
                         biom_root(i) = biom_root(i) - mR(i) * mort_stress(i) * (biom_root(i) / stems_n(i))
                         biom_stem(i) = biom_stem(i) - mS(i) * mort_stress(i) * (biom_stem(i) / stems_n(i))
                         stems_n(i) = stems_n(i) - mort_stress(i)
@@ -751,6 +783,11 @@ contains
                         !mort_thinn(i) = ceiling( mort_thinn(i) )
 
                         if( mort_thinn(i) < stems_n(i) ) then
+							!update litterfalls after mortality (assuming no foliage and root litterfall)
+							biom_loss_stem(i) = biom_loss_stem(i) + 0.9d0 * &
+							 mS(i) * mort_thinn(i) * (biom_stem(i) / stems_n(i))
+							biom_loss_branches(i) = biom_loss_branches(i) + 0.1d0 * &
+							 mS(i) * mort_thinn(i) * (biom_stem(i) / stems_n(i))
 
                             biom_foliage(i) = biom_foliage(i) - mF(i) * mort_thinn(i) * (biom_foliage(i) / stems_n(i))
                             biom_root(i) = biom_root(i) - mR(i) * mort_thinn(i) * (biom_root(i) / stems_n(i))
@@ -758,6 +795,9 @@ contains
                             stems_n(i) = stems_n(i) - mort_thinn(i)
 
                         else
+							!update litterfalls after mortality (assuming no foliage and root litterfall)
+							biom_loss_stem(i) = biom_loss_stem(i) + 0.9d0 * biom_stem(i)
+							biom_loss_branches(i) = biom_loss_branches(i) + 0.1d0 * biom_stem(i)
 
                             biom_foliage(i) = 0.d0
                             biom_root(i) = 0.d0
@@ -812,6 +852,10 @@ contains
 
             ! Save end of the month results
             include 'i_write_out.h'
+			
+			!!reset to zero after storing output
+			biom_loss_stem(:) = 0.d0
+			biom_loss_branches(:) = 0.d0
 
         end do
 

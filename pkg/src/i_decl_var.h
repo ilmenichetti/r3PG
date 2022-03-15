@@ -186,6 +186,14 @@ real(kind=8), dimension(n_sp) :: lai_sa_ratio !the ratio of mean tree leaf area 
 integer, dimension(n_sp) :: layer_id
 
 
+! Soil C variables ---------------
+real(kind=8), dimension(n_sp) :: rlC      ! root litter Carbon (root)
+real(kind=8), dimension(n_sp) :: nwlC      ! non-woody litter Carbon (foliage)
+real(kind=8), dimension(n_sp) :: fwlC      ! fine-woody litter Carbon (branches)
+real(kind=8), dimension(n_sp) :: cwlC      ! coarse-woody litter Carbon (stems)
+real(kind=8), dimension(n_sp) :: SOC      ! Soil organic Carbon
+
+
 ! Stocks variables ---------------
 real(kind=8), dimension(n_sp) :: biom_foliage   ! Foliage biomass
 real(kind=8), dimension(n_sp) :: biom_foliage_debt
@@ -200,6 +208,8 @@ real(kind=8), dimension(n_sp) :: biom_incr_stem
 
 real(kind=8), dimension(n_sp) :: biom_loss_foliage  ! Litter fall
 real(kind=8), dimension(n_sp) :: biom_loss_root
+real(kind=8), dimension(n_sp) :: biom_loss_stem  ! Litter branches
+real(kind=8), dimension(n_sp) :: biom_loss_branches ! Litter stems
 
 
 ! Modifiers ----------------------

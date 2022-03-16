@@ -41,6 +41,7 @@ run_3PG <- function(
   site,
   species,
   climate,
+  soil=NULL,
   thinning = NULL,
   parameters = NULL,
   size_dist = NULL,
@@ -87,6 +88,11 @@ run_3PG <- function(
   species = species[,c('year_p', 'month_p', 'fertility', 'stems_n', 'biom_stem', 'biom_root', 'biom_foliage')]
   species = as.matrix( species, nrow = n_sp, ncol = 7)
 
+  # soil
+  if( is.null(soil) ){
+    soil <- matrix(0,n_sp,5)
+  }
+
   # climate
   n_m = dim(climate)[1]
   climate = climate[,c('tmp_min', 'tmp_max', 'tmp_ave', 'prcp', 'srad', 'frost_days', 'vpd_day', 'co2', 'd13catm')]
@@ -126,7 +132,8 @@ run_3PG <- function(
     n_m = n_m,
     n_man = n_man,
     t_t = t_t,
-    settings = settings)
+    settings = settings,
+    soilInputs = soil)
 
 
   # Remove the values for dead cohort or not recruited cohort

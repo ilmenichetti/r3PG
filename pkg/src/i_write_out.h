@@ -108,12 +108,19 @@ output(ii,:,8,3) = mort_thinn(:)
 output(ii,:,8,4) = mort_stress(:)
 
 
-! Wood Delta ------------------
+! Wood Delta & SoilC ------------------
 output(ii,:,9,1) = Gc_mol(:)
 output(ii,:,9,2) = Gw_mol(:)
 output(ii,:,9,3) = D13CNewPS(:)
 output(ii,:,9,4) = D13CTissue(:)
 output(ii,:,9,5) = InterCi(:) * 1000000.d0
+
+output(ii,:,9,6) = soilCfol(:)
+output(ii,:,9,7) = soilCroot(:)
+output(ii,:,9,8) = soilCbranch(:)
+output(ii,:,9,9) = soilCstem(:)
+output(ii,:,9,10) = SOC(:)
+
 
 ! Weibull ---------------------
 output(ii,:,10,1) = bias_scale(1,:)

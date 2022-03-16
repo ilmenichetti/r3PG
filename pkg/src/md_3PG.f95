@@ -10,7 +10,7 @@ module mod_3PG
 contains
 
     subroutine s_3PG_f ( siteInputs, speciesInputs, forcingInputs, managementInputs, pars_i, pars_b, &
-        n_sp, n_m, n_man, t_t, settings, output) bind(C, name = "s_3PG_f_")
+        n_sp, n_m, n_man, t_t, settings, soilInputs, output) bind(C, name = "s_3PG_f_")
 
         implicit none
 
@@ -27,6 +27,7 @@ contains
         ! Initial, forcing, parameters
         real(kind=c_double), dimension(8), intent(in) :: siteInputs
         real(kind=c_double), dimension(n_sp,7), intent(in) :: speciesInputs
+        real(kind=c_double), dimension(n_sp,5), intent(in) :: soilInputs
         real(kind=c_double), dimension(n_man,5,n_sp), intent(in) :: managementInputs
         real(kind=c_double), dimension(n_m,9), intent(in) :: forcingInputs
         real(kind=c_double), dimension(82,n_sp), intent(in) :: pars_i
@@ -850,6 +851,16 @@ contains
                 epsilon_biom_stem(:) = 0.d0
             end where
 
+!!calculate soilC with Q
+            do i = 1, n_sp
+				soilCfol(i) = f_q_dec((soilCfol(i)+biom_loss_foliage(i)),0.7d0)
+				soilCroot(i) = f_q_dec((soilCroot(i)+biom_loss_root(i)),0.7d0)
+				soilCbranch(i) = f_q_dec((soilCbranch(i)+biom_loss_branches(i)),0.7d0)
+				soilCstem(i) = f_q_dec((soilCstem(i) + biom_loss_stem(i)),0.7d0)
+				SOC(i) = f_q_dec((SOC(i) + soilCfol(i)*0.1d0+soilCroot(i)*0.1d0+soilCbranch(i)*0.1d0+ &
+					soilCstem(i)*0.1d0),0.7d0)
+			enddo
+			
             ! Save end of the month results
             include 'i_write_out.h'
 			
@@ -863,6 +874,21 @@ contains
 
     !*************************************************************************************
     ! FUNCTIONS
+
+    function f_q_dec(input, param) result( out )
+
+        implicit none
+
+        ! input
+        real(kind=8), intent(in) :: input, param
+        
+        ! output
+        real(kind=8) :: out
+
+		out = input* param
+
+    end function f_q_dec
+
 
     function f_dormant(month, leafgrow, leaffall) result( out )
 

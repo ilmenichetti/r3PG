@@ -852,14 +852,14 @@ contains
             end where
 
 !!calculate soilC with Q
-            do i = 1, n_sp
-				soilCfol(i) = f_q_dec((soilCfol(i)+biom_loss_foliage(i)),0.7d0)
-				soilCroot(i) = f_q_dec((soilCroot(i)+biom_loss_root(i)),0.7d0)
-				soilCbranch(i) = f_q_dec((soilCbranch(i)+biom_loss_branches(i)),0.7d0)
-				soilCstem(i) = f_q_dec((soilCstem(i) + biom_loss_stem(i)),0.7d0)
-				SOC(i) = f_q_dec((SOC(i) + soilCfol(i)*0.1d0+soilCroot(i)*0.1d0+soilCbranch(i)*0.1d0+ &
-					soilCstem(i)*0.1d0),0.7d0)
-			enddo
+            ! do i = 1, n_sp
+				! soilCfol(i) = f_q_dec((soilCfol(i)+biom_loss_foliage(i)),0.7d0)
+				! soilCroot(i) = f_q_dec((soilCroot(i)+biom_loss_root(i)),0.7d0)
+				! soilCbranch(i) = f_q_dec((soilCbranch(i)+biom_loss_branches(i)),0.7d0)
+				! soilCstem(i) = f_q_dec((soilCstem(i) + biom_loss_stem(i)),0.7d0)
+				! SOC(i) = f_q_dec((SOC(i) + soilCfol(i)*0.1d0+soilCroot(i)*0.1d0+soilCbranch(i)*0.1d0+ &
+					! soilCstem(i)*0.1d0),0.7d0)
+			! enddo
 			
             ! Save end of the month results
             include 'i_write_out.h'
@@ -868,26 +868,125 @@ contains
 			biom_loss_stem(:) = 0.d0
 			biom_loss_branches(:) = 0.d0
 
-        end do
+open(1, file="test1.txt")
+write(1,*) f_q_soc_monthly(3.d0, (100))
+close(1)
 
+        end do
     end subroutine s_3PG_f
 
     !*************************************************************************************
     ! FUNCTIONS
 
-    function f_q_dec(input, param) result( out )
+	function u0_calc(latitude) result( out )
 
         implicit none
 
         ! input
-        real(kind=8), intent(in) :: input, param
+        real(kind=8), intent(in) :: latitude
         
         ! output
         real(kind=8) :: out
 
-		out = input* param
+		out=(0.0855d0+0.0157d0*(50.6d0-0.768d0*latitude))
+	endfunction u0_calc
+		
+		
 
-    end function f_q_dec
+    function f_q_dec_monthly(input, nSim) result( out )
+
+        implicit none
+
+        ! input
+        real(kind=8), intent(in) :: input
+        integer, intent(in) :: nSim
+        
+		! output
+        real(kind=8) :: out(nSim)
+		
+		real(kind=8) :: tm(nSim), zeta,mass_left(nSim), tmax(nSim), alpha
+		integer :: i 
+		!parameters
+		real(kind=8) :: beta, eta_11, e0, fc, delay, u0, q0
+		
+		!initialize parameters
+		tmax(:) = 1.d0
+		beta=7.d0 
+        eta_11=0.36d0
+        e0=0.25d0
+        fc=0.5d0
+        delay=0.d0 
+        u0=u0_calc(55.d0)
+        q0=1.1d0
+
+  tm = (/(i, i=1,nSim, 1)/)/12.d0 !###months as fraction of years
+  
+  ! #the matrix is needed to store each decomposing input flux, one per each time step. It is then summed at the end.
+  
+  zeta = (1-e0)/(beta*eta_11*e0) !zeta is not variable over time, it is edaphic
+  
+  ! #alpha is variable over time, in theory, since u0 could later depend on climate too
+  alpha = fc*beta*eta_11*u0*q0**beta !#in this version alpha is calculated inside the loop because I want to have a different u0 for each time step for later on in the project, even if at this point it is not needed
+  
+  do i = 1, nSim ! loop running for each time step, calculating the ratio of decomposed inputs left
+    ! #decomposition proportion function, runs again each timestep
+    if(tm(i)<(tmax(i))) then
+      mass_left(i) = ((2.d0/(tmax(i)))*(1.d0/(alpha*(1.d0-zeta)))*((1.d0+alpha*tm(i))**(1.d0-zeta)- &
+                                                             (1.d0-(tm(i)/(tmax(i)))))+ &
+               ((2.d0/(tmax(i))**2.d0)*(1.d0/(alpha**2.d0*(1.d0-zeta)*(2.d0-zeta)))*(1.d0-(1.d0+alpha*tm(i))**(2.d0-zeta)))+ &
+                         (1.d0-(tm(i)/(tmax(i))))**2.d0)
+    else
+      mass_left(i) = (2.d0/(tmax(i)))*(1.d0/(alpha*(1.d0-zeta)))*(1.d0+alpha*tm(i))**(1.d0-zeta)+ &
+         ((2.d0/((tmax(i))**2.d0))*(1.d0/(alpha**2.d0*(1.d0-zeta)*(2.d0-zeta)))*(((1.d0+alpha*(tm(i)-(tmax(i))))**(2.d0-zeta))- &
+                                                               ((1.d0+alpha*tm(i))**(2.d0-zeta))))
+    endif
+  enddo
+  
+  ! # decomposing_matrix[j:length(inputs),j]<-inputs[j]*mass_left
+  ! # time_dec_vec_sim=head(time_dec_vec_sim, -1) #here I am dropping the last element of the simulation vector. You can achieve the same in other ways...
+  ! # 
+  
+  out = mass_left*input
+
+    end function f_q_dec_monthly
+
+
+    function f_q_soc_monthly(SOCinput, nSim) result( out )
+
+        implicit none
+
+        ! input
+        real(kind=8), intent(in) :: SOCinput
+        integer, intent(in) :: nSim
+        
+		! output
+        real(kind=8) :: out(nSim)
+		
+		real(kind=8) :: tm(nSim), zeta, q_t(nSim)
+		integer :: i 
+		!parameters
+		real(kind=8) :: beta, eta_11, e0, fc, delay, u0, q0
+		
+		!initialize parameters
+		beta=7.d0 
+        eta_11=0.36d0
+        e0=0.25d0
+        fc=0.5d0
+        delay=0.d0 
+        u0=0.8*u0_calc(55.d0)
+        q0=0.7d0
+
+  tm = (/(i, i=1,nSim, 1)/)/12.d0 !###months as fraction of years
+  
+  ! #the matrix is needed to store each decomposing input flux, one per each time step. It is then summed at the end.
+  
+  zeta = (1-e0)/(eta_11*e0) !zeta is not variable over time, it is edaphic
+  
+  q_t = 1/(1+beta*fc*eta_11*u0*q0**beta*tm)**(1/beta)
+  
+  out = SOCinput*(q_t**zeta)
+
+    end function f_q_soc_monthly
 
 
     function f_dormant(month, leafgrow, leaffall) result( out )

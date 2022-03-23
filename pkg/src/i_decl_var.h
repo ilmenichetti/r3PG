@@ -205,11 +205,12 @@ real(kind=8), dimension(n_sp) :: biom_loss_branches ! Litter stems
 
 
 ! soil variables ---------------
-real(kind=8), dimension(n_sp) :: soilCfol   ! soilC foliage layer
-real(kind=8), dimension(n_sp) :: soilCroot   ! soilC root layer
-real(kind=8), dimension(n_sp) :: soilCbranch   ! soilC branches layer
-real(kind=8), dimension(n_sp) :: soilCstem   ! soilC stem layer
-real(kind=8), dimension(n_sp) :: SOC   ! soil organic caron
+real(kind=8), dimension(n_m, n_sp) :: soilCfol   ! soilC foliage layer
+real(kind=8), dimension(n_m, n_sp) :: soilCroot   ! soilC root layer
+real(kind=8), dimension(n_m, n_sp) :: soilCbranch   ! soilC branches layer
+real(kind=8), dimension(n_m, n_sp) :: soilCstem   ! soilC stem layer
+real(kind=8), dimension(n_m, n_sp) :: SOC   ! soil organic caron
+real(kind=8) :: SOCin(n_sp) !input to SOC
 
 ! Modifiers ----------------------
 real(kind=8), dimension(n_m, n_sp) :: f_age     ! Age related modifier

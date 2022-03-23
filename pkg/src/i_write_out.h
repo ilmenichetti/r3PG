@@ -115,12 +115,12 @@ output(ii,:,9,3) = D13CNewPS(:)
 output(ii,:,9,4) = D13CTissue(:)
 output(ii,:,9,5) = InterCi(:) * 1000000.d0
 
-output(ii,:,9,6) = soilCfol(:)
-output(ii,:,9,7) = soilCroot(:)
-output(ii,:,9,8) = soilCbranch(:)
-output(ii,:,9,9) = soilCstem(:)
-output(ii,:,9,10) = SOC(:)
-
+output(:,:,9,6) = soilCfol
+output(:,:,9,7) = soilCroot
+output(:,:,9,8) = soilCbranch
+output(:,:,9,9) = soilCstem
+output(:,:,9,10) = SOC
+output(ii,:,9,11) = SOCin
 
 ! Weibull ---------------------
 output(ii,:,10,1) = bias_scale(1,:)

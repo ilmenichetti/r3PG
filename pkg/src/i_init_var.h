@@ -107,3 +107,6 @@ InterCi(:) = 0.d0 / 1000000.d0
 
 ! Weibull ---------------------
 bias_scale(:,:) = 0.d0
+
+! initialize Soil
+output(:,:,9,6:10) = soilInputs

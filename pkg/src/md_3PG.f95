@@ -27,7 +27,7 @@ contains
         ! Initial, forcing, parameters
         real(kind=c_double), dimension(8), intent(in) :: siteInputs
         real(kind=c_double), dimension(n_sp,7), intent(in) :: speciesInputs
-        real(kind=c_double), dimension(n_sp,5), intent(in) :: soilInputs
+        real(kind=c_double), dimension(n_m,n_sp,5), intent(in) :: soilInputs
         real(kind=c_double), dimension(n_man,5,n_sp), intent(in) :: managementInputs
         real(kind=c_double), dimension(n_m,9), intent(in) :: forcingInputs
         real(kind=c_double), dimension(82,n_sp), intent(in) :: pars_i
@@ -852,15 +852,24 @@ contains
             end where
 
 !!calculate soilC with Q
-            ! do i = 1, n_sp
-				! soilCfol(i) = f_q_dec((soilCfol(i)+biom_loss_foliage(i)),0.7d0)
-				! soilCroot(i) = f_q_dec((soilCroot(i)+biom_loss_root(i)),0.7d0)
+             do i = 1, n_sp
+				soilCfol(ii:n_m,i) = f_q_dec_monthly(biom_loss_foliage(i),(n_m-ii+1)) + output(ii:n_m,i,9,6)
+				soilCroot(ii:n_m,i) = f_q_dec_monthly(biom_loss_root(i),(n_m-ii+1)) + output(ii:n_m,i,9,7)
+				soilCbranch(ii:n_m,i) = f_q_dec_monthly(biom_loss_branches(i),(n_m-ii+1)) + output(ii:n_m,i,9,8)
+				soilCstem(ii:n_m,i) = f_q_dec_monthly(biom_loss_stem(i),(n_m-ii+1)) + output(ii:n_m,i,9,9)
+				soilCfol(ii,i) = soilCfol(ii,i) * (1.d0- 0.5d0)
+				soilCroot(ii,i) = soilCroot(ii,i) * (1.d0- 0.5d0)
+				soilCbranch(ii,i) = soilCbranch(ii,i) * (1.d0- 0.5d0)
+				soilCstem(ii,i) = soilCstem(ii,i) * (1.d0- 0.3d0)
+				SOCin(i) = soilCfol(ii,i) * (0.5d0) + soilCroot(ii,i) * (0.5d0) + &
+					soilCbranch(ii,i) * (0.5d0) + soilCstem(ii,i) * (0.3d0)
+				SOC(ii:n_m,i) = f_q_soc_monthly(SOCin(i), (n_m-ii+1)) + output(ii:n_m,i,9,10)
 				! soilCbranch(i) = f_q_dec((soilCbranch(i)+biom_loss_branches(i)),0.7d0)
 				! soilCstem(i) = f_q_dec((soilCstem(i) + biom_loss_stem(i)),0.7d0)
 				! SOC(i) = f_q_dec((SOC(i) + soilCfol(i)*0.1d0+soilCroot(i)*0.1d0+soilCbranch(i)*0.1d0+ &
 					! soilCstem(i)*0.1d0),0.7d0)
-			! enddo
-			
+			enddo
+
             ! Save end of the month results
             include 'i_write_out.h'
 			
@@ -868,11 +877,8 @@ contains
 			biom_loss_stem(:) = 0.d0
 			biom_loss_branches(:) = 0.d0
 
-open(1, file="test1.txt")
-write(1,*) f_q_soc_monthly(3.d0, (100))
-close(1)
-
         end do
+
     end subroutine s_3PG_f
 
     !*************************************************************************************

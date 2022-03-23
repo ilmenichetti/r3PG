@@ -26,11 +26,11 @@ biom_root_i = speciesInputs(:,6)
 biom_foliage_i = speciesInputs(:,7)
 
 ! Soil data -------------------------
-soilCfol    = soilInputs(:,1)
-soilCroot   = soilInputs(:,2)
-soilCbranch = soilInputs(:,3)
-soilCstem   = soilInputs(:,4)
-SOC 		= soilInputs(:,5)
+soilCfol    = soilInputs(:,:,1)
+soilCroot   = soilInputs(:,:,2)
+soilCbranch = soilInputs(:,:,3)
+soilCstem   = soilInputs(:,:,4)
+SOC 		= soilInputs(:,:,5)
 
 ! Climate ------------------------------
 tmp_min     = forcingInputs(:,1)

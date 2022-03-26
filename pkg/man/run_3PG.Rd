@@ -4,8 +4,9 @@
 \alias{run_3PG}
 \title{Runs a 3-PG model simulation}
 \usage{
-run_3PG(site, species, climate, thinning = NULL, parameters = NULL,
-  size_dist = NULL, settings = NULL, check_input = TRUE, df_out = TRUE)
+run_3PG(site, species, climate, soil = NULL, thinning = NULL,
+  parameters = NULL, size_dist = NULL, parsQlitter = NULL,
+  parsQsoc = NULL, settings = NULL, check_input = TRUE, df_out = TRUE)
 }
 \arguments{
 \item{site}{table as described in \code{\link{prepare_input}} containing the information about site conditions.}
@@ -25,6 +26,10 @@ run_3PG(site, species, climate, thinning = NULL, parameters = NULL,
 \item{check_input}{\code{logical} if the input shall be checked for consistency. It will call \code{\link{prepare_input}} function.}
 
 \item{df_out}{\code{logical} if the output shall be long data.frame (TRUE) the 4-dimensional array (FALSE).}
+
+\item{soilLitPars}{table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parameters}}}
+
+\item{soilSOCPars}{table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parameters}}}
 }
 \value{
 either a 4-dimentional array or a data.frame, depending on the parameter \code{df_out}. More details on the output is \code{\link{i_output}}

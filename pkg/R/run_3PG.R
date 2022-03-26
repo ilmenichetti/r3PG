@@ -97,17 +97,40 @@ run_3PG <- function(
   climate = climate[,c('tmp_min', 'tmp_max', 'tmp_ave', 'prcp', 'srad', 'frost_days', 'vpd_day', 'co2', 'd13catm')]
   climate = as.matrix( climate, nrow = n_m, ncol = 9)
 
-  # soil
-  if( is.null(soil) ){
-    soil <- array(0,dim = c(n_m,n_sp,5))
-  }
-
-  # soil
+  # soil parameters
   if( is.null(parsQlitter) ){
     parsQlitter <-  as.matrix( d_parsQlitter[,-1], nrow = 24, ncol = n_sp)
   }
   if( is.null(parsQsoc) ){
     parsQsoc <- as.numeric(unlist(d_parsQsoc[,2]))
+  }
+
+  # initialize soil
+  if(!all(is.null(soil)) & !is.matrix(soil)){
+    ##set parameters
+    fc = parsQsoc[4]
+    beta = parsQsoc[1]
+    e0 = parsQsoc[3]
+    eta_11 = parsQsoc[2]
+    q0 = parsQsoc[6]
+    delay = parsQsoc[5]
+    u0 = u0_calc(site[1])
+
+    SOCt <- matrix(0, n_m, n_sp)
+    for(i in 1:length(soil)){
+      tm <- (1:n_m)/12 ####months as fraction of years
+      q_t = rep(0,n_m)
+      zeta = (1-e0)/(eta_11*e0) #zeta is not variable over time, it is edaphic
+      q_t <- 1/(1+beta*fc*eta_11*u0*q0^beta*tm)^(1/beta)
+      SOCt[,i] <- soil[i] * q_t ^(zeta-beta)
+    }
+    soil <- array(0,dim = c(n_m,n_sp,5))
+    soil[,,5] = SOCt
+  }else if(all(is.null(soil))){
+    soil <- array(0,dim = c(n_m,n_sp,5))
+  }
+  if(!identical(dim(soil),dim(array(0,dim=c(n_m,n_sp,5))))){
+    (print("check soil input"))
   }
 
   # thinning
@@ -192,4 +215,14 @@ transf.out <- function( sim, sp_names, year_i, month_i ){
 
   return(sim)
 
+}
+
+
+
+# u0 represents the microbial kinetic. It is usually as a function of latitude, but we can think to make it dependent on climatic factors in the final model version
+# I have a series of function to calculate a reduction coefficient of decomposition with climate, it uses (I guess) the same parameters of 3PG. We need just to introduce a
+# calibrated proportionality coefficient
+# for now we can keep it as funciton of latitude
+u0_calc<-function(latitude){
+  u0_calc=(0.0855+0.0157*(50.6-0.768*latitude))
 }

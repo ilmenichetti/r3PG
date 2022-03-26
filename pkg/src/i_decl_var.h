@@ -211,6 +211,13 @@ real(kind=8), dimension(n_m, n_sp) :: soilCbranch   ! soilC branches layer
 real(kind=8), dimension(n_m, n_sp) :: soilCstem   ! soilC stem layer
 real(kind=8), dimension(n_m, n_sp) :: SOC   ! soil organic caron
 real(kind=8) :: SOCin(n_sp) !input to SOC
+! soil parameters -------------
+real(kind=8), dimension(n_sp) :: beta_fol, eta_11_fol, e0_fol, fc_fol, delay_fol, q0_fol  !foliage litter parameters
+real(kind=8), dimension(n_sp) :: beta_root, eta_11_root, e0_root, fc_root, delay_root, q0_root  !root litter parameters
+real(kind=8), dimension(n_sp) :: beta_bran, eta_11_bran, e0_bran, fc_bran, delay_bran, q0_bran  !branches litter parameters 
+real(kind=8), dimension(n_sp) :: beta_stem, eta_11_stem, e0_stem, fc_stem, delay_stem, q0_stem  !stems litter parameters
+real(kind=8), dimension(n_sp) :: z_leaves, z_root, z_bran, z_stem  !z litter parameters
+real(kind=8) :: beta_soc, eta_11_soc, e0_soc, fc_soc, delay_soc, q0_soc  !soc parameters
 
 ! Modifiers ----------------------
 real(kind=8), dimension(n_m, n_sp) :: f_age     ! Age related modifier

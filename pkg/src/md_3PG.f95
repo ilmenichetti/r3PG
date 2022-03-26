@@ -10,7 +10,7 @@ module mod_3PG
 contains
 
     subroutine s_3PG_f ( siteInputs, speciesInputs, forcingInputs, managementInputs, pars_i, pars_b, &
-        n_sp, n_m, n_man, t_t, settings, soilInputs, output) bind(C, name = "s_3PG_f_")
+        pars_litter, pars_soc,n_sp, n_m, n_man, t_t, settings, soilInputs, output) bind(C, name = "s_3PG_f_")
 
         implicit none
 
@@ -32,6 +32,8 @@ contains
         real(kind=c_double), dimension(n_m,9), intent(in) :: forcingInputs
         real(kind=c_double), dimension(82,n_sp), intent(in) :: pars_i
         real(kind=c_double), dimension(30,n_sp), intent(in) :: pars_b
+        real(kind=c_double), dimension(28,n_sp), intent(in) :: pars_litter
+        real(kind=c_double), dimension(6), intent(in) :: pars_soc
 
         ! Output array
         real(kind=c_double), dimension(n_m,n_sp,10,15), intent(inout) :: output
@@ -42,6 +44,7 @@ contains
         include 'i_read_input.h'
         include 'i_read_param.h'
         include 'i_read_param_sizeDist.h'
+		include 'i_read_param_soil.h'
 
         ! Initialization
         include 'i_init_var.h'
@@ -853,17 +856,26 @@ contains
 
 !!calculate soilC with Q
              do i = 1, n_sp
-				soilCfol(ii:n_m,i) = f_q_dec_monthly(biom_loss_foliage(i),(n_m-ii+1)) + output(ii:n_m,i,9,6)
-				soilCroot(ii:n_m,i) = f_q_dec_monthly(biom_loss_root(i),(n_m-ii+1)) + output(ii:n_m,i,9,7)
-				soilCbranch(ii:n_m,i) = f_q_dec_monthly(biom_loss_branches(i),(n_m-ii+1)) + output(ii:n_m,i,9,8)
-				soilCstem(ii:n_m,i) = f_q_dec_monthly(biom_loss_stem(i),(n_m-ii+1)) + output(ii:n_m,i,9,9)
-				soilCfol(ii,i) = soilCfol(ii,i) * (1.d0- 0.5d0)
-				soilCroot(ii,i) = soilCroot(ii,i) * (1.d0- 0.5d0)
-				soilCbranch(ii,i) = soilCbranch(ii,i) * (1.d0- 0.5d0)
-				soilCstem(ii,i) = soilCstem(ii,i) * (1.d0- 0.3d0)
-				SOCin(i) = soilCfol(ii,i) * (0.5d0) + soilCroot(ii,i) * (0.5d0) + &
-					soilCbranch(ii,i) * (0.5d0) + soilCstem(ii,i) * (0.3d0)
-				SOC(ii:n_m,i) = f_q_soc_monthly(SOCin(i), (n_m-ii+1)) + output(ii:n_m,i,9,10)
+				soilCfol(ii:n_m,i) = f_q_dec_monthly(biom_loss_foliage(i),(n_m-ii+1), &
+	beta_fol(i), eta_11_fol(i), e0_fol(i), fc_fol(i), delay_fol(i), Lat, q0_fol(i)) + &
+	output(ii:n_m,i,9,6)
+				soilCroot(ii:n_m,i) = f_q_dec_monthly(biom_loss_root(i),(n_m-ii+1), &
+	beta_root(i), eta_11_root(i), e0_root(i), fc_root(i), delay_root(i), Lat, q0_root(i)) + &
+	output(ii:n_m,i,9,7)
+				soilCbranch(ii:n_m,i) = f_q_dec_monthly(biom_loss_branches(i),(n_m-ii+1), &
+	beta_bran(i), eta_11_bran(i), e0_bran(i), fc_bran(i), delay_bran(i), Lat, q0_bran(i)) + &
+	output(ii:n_m,i,9,8)
+				soilCstem(ii:n_m,i) = f_q_dec_monthly(biom_loss_stem(i),(n_m-ii+1), &
+	beta_stem(i), eta_11_stem(i), e0_stem(i), fc_stem(i), delay_stem(i), Lat, q0_stem(i)) + &
+	output(ii:n_m,i,9,9)
+				soilCfol(ii,i) = soilCfol(ii,i) * (1.d0 - z_leaves(i))
+				soilCroot(ii,i) = soilCroot(ii,i) * (1.d0 - z_root(i))
+				soilCbranch(ii,i) = soilCbranch(ii,i) * (1.d0 - z_bran(i))
+				soilCstem(ii,i) = soilCstem(ii,i) * (1.d0 - z_stem(i))
+				SOCin(i) = soilCfol(ii,i) * z_leaves(i) + soilCroot(ii,i) * z_root(i) + &
+					soilCbranch(ii,i) * z_bran(i) + soilCstem(ii,i) * z_stem(i)
+				SOC(ii:n_m,i) = f_q_soc_monthly(SOCin(i), (n_m-ii+1), &
+		beta_soc,eta_11_soc,e0_soc,fc_soc,delay_soc,Lat,q0_soc) + output(ii:n_m,i,9,10)
 				! soilCbranch(i) = f_q_dec((soilCbranch(i)+biom_loss_branches(i)),0.7d0)
 				! soilCstem(i) = f_q_dec((soilCstem(i) + biom_loss_stem(i)),0.7d0)
 				! SOC(i) = f_q_dec((SOC(i) + soilCfol(i)*0.1d0+soilCroot(i)*0.1d0+soilCbranch(i)*0.1d0+ &
@@ -899,31 +911,31 @@ contains
 		
 		
 
-    function f_q_dec_monthly(input, nSim) result( out )
+    function f_q_dec_monthly(input, nSim,beta, eta_11, e0, fc, delay, Lat, q0) result( out )
 
         implicit none
 
         ! input
         real(kind=8), intent(in) :: input
-        integer, intent(in) :: nSim
+		!parameters
+		real(kind=8) :: beta, eta_11, e0, fc, delay, Lat, q0
+		integer, intent(in) :: nSim
         
 		! output
         real(kind=8) :: out(nSim)
 		
-		real(kind=8) :: tm(nSim), zeta,mass_left(nSim), tmax(nSim), alpha
+		real(kind=8) :: tm(nSim), zeta,mass_left(nSim), tmax(nSim), alpha,u0
 		integer :: i 
-		!parameters
-		real(kind=8) :: beta, eta_11, e0, fc, delay, u0, q0
 		
 		!initialize parameters
 		tmax(:) = 1.d0
-		beta=7.d0 
-        eta_11=0.36d0
-        e0=0.25d0
-        fc=0.5d0
-        delay=0.d0 
-        u0=u0_calc(55.d0)
-        q0=1.1d0
+		! beta=7.d0 
+        ! eta_11=0.36d0
+        ! e0=0.25d0
+        ! fc=0.5d0
+        ! delay=0.d0 
+        u0=u0_calc(Lat)
+        ! q0=1.1d0
 
   tm = (/(i, i=1,nSim, 1)/)/12.d0 !###months as fraction of years
   
@@ -957,13 +969,15 @@ contains
     end function f_q_dec_monthly
 
 
-    function f_q_soc_monthly(SOCinput, nSim) result( out )
+    function f_q_soc_monthly(SOCinput,nSim,beta,eta_11,e0,fc,delay,Lat,q0) result( out )
 
         implicit none
 
         ! input
         real(kind=8), intent(in) :: SOCinput
-        integer, intent(in) :: nSim
+        !parameters
+		real(kind=8) :: beta, eta_11, e0, fc, delay, Lat, q0
+		integer, intent(in) :: nSim
         
 		! output
         real(kind=8) :: out(nSim)
@@ -971,16 +985,16 @@ contains
 		real(kind=8) :: tm(nSim), zeta, q_t(nSim)
 		integer :: i 
 		!parameters
-		real(kind=8) :: beta, eta_11, e0, fc, delay, u0, q0
+		real(kind=8) :: u0
 		
 		!initialize parameters
-		beta=7.d0 
-        eta_11=0.36d0
-        e0=0.25d0
-        fc=0.5d0
-        delay=0.d0 
-        u0=0.8*u0_calc(55.d0)
-        q0=0.7d0
+		! beta=7.d0 
+        ! eta_11=0.36d0
+        ! e0=0.25d0
+        ! fc=0.5d0
+        ! delay=0.d0 
+        u0=0.8*u0_calc(Lat)
+        ! q0=0.7d0
 
   tm = (/(i, i=1,nSim, 1)/)/12.d0 !###months as fraction of years
   

@@ -8,6 +8,8 @@
 #' @param thinning table as described in \code{\link{prepare_input}} containing the information about thinnings. See also \code{\link{prepare_thinning}}
 #' @param parameters table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parameters}}
 #' @param size_dist table as described in \code{\link{prepare_input}} containing the information about size distributions. See also \code{\link{prepare_sizeDist}}
+#' @param soilLitPars table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parameters}}
+#' @param soilSOCPars table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parameters}}
 #' @param settings a list as described in \code{\link{prepare_input}} with settings for the model.
 #' @param check_input \code{logical} if the input shall be checked for consistency. It will call \code{\link{prepare_input}} function.
 #' @param df_out \code{logical} if the output shall be long data.frame (TRUE) the 4-dimensional array (FALSE).
@@ -45,6 +47,8 @@ run_3PG <- function(
   thinning = NULL,
   parameters = NULL,
   size_dist = NULL,
+  parsQlitter = NULL,
+  parsQsoc = NULL,
   settings = NULL,
   check_input = TRUE,
   df_out = TRUE
@@ -98,6 +102,14 @@ run_3PG <- function(
     soil <- array(0,dim = c(n_m,n_sp,5))
   }
 
+  # soil
+  if( is.null(parsQlitter) ){
+    parsQlitter <-  as.matrix( d_parsQlitter[,-1], nrow = 24, ncol = n_sp)
+  }
+  if( is.null(parsQsoc) ){
+    parsQsoc <- as.numeric(unlist(d_parsQsoc[,2]))
+  }
+
   # thinning
   n_man = dim(thinning)[1]
   if( thinn_null ){
@@ -128,6 +140,8 @@ run_3PG <- function(
     managementInputs = thinning,
     parameterInputs = parameters,
     sizeDistInputs = size_dist,
+    parsQlitterInputs = parsQlitter,
+    parsQsocInputs = parsQsoc,
     n_sp = n_sp,
     n_m = n_m,
     n_man = n_man,

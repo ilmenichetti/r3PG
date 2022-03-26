@@ -5,12 +5,14 @@
 #include <R_ext/Rdynload.h>
 
 void F77_NAME(s_3PG_f)(double *siteInputs, double *speciesInputs, double *forcingInputs, double *managementInputs,
-    double *parameterInputs, double *sizeDistInputs, int *n_sp, int *n_m, int *n_man, int *t_t, int *settings,
+    double *parameterInputs, double *sizeDistInputs, double *parsQlitterInputs, double *parsQsocInputs, 
+	int *n_sp, int *n_m, int *n_man, int *t_t, int *settings,
     double *soilInputs,
     double *output);
 
 extern SEXP s_3PG_c(SEXP siteInputs, SEXP speciesInputs, SEXP forcingInputs, SEXP managementInputs, SEXP parameterInputs,
-    SEXP sizeDistInputs, SEXP n_sp, SEXP n_m, SEXP n_man, SEXP t_t, SEXP settings, SEXP soilInputs){
+    SEXP sizeDistInputs, SEXP parsQlitterInputs, SEXP parsQsocInputs, 
+	SEXP n_sp, SEXP n_m, SEXP n_man, SEXP t_t, SEXP settings, SEXP soilInputs){
 
     int n;
 
@@ -31,7 +33,8 @@ extern SEXP s_3PG_c(SEXP siteInputs, SEXP speciesInputs, SEXP forcingInputs, SEX
     setAttrib( output, R_DimSymbol, dims);
 
     F77_CALL(s_3PG_f)(REAL(siteInputs), REAL(speciesInputs), REAL(forcingInputs), REAL(managementInputs), REAL(parameterInputs),
-        REAL(sizeDistInputs), INTEGER(n_sp), INTEGER(n_m), INTEGER(n_man), INTEGER(t_t), INTEGER(settings), REAL(soilInputs), REAL(output));
+        REAL(sizeDistInputs), REAL(parsQlitterInputs), REAL(parsQsocInputs), 
+		INTEGER(n_sp), INTEGER(n_m), INTEGER(n_man), INTEGER(t_t), INTEGER(settings), REAL(soilInputs), REAL(output));
 
     UNPROTECT(2);
 
@@ -39,7 +42,7 @@ extern SEXP s_3PG_c(SEXP siteInputs, SEXP speciesInputs, SEXP forcingInputs, SEX
 }
 
 static const R_CallMethodDef CallEntries[] = {
-  {"s_3PG_c",   (DL_FUNC) &s_3PG_c,   12},
+  {"s_3PG_c",   (DL_FUNC) &s_3PG_c,   14},
   {NULL,         NULL,                0}
 };
 

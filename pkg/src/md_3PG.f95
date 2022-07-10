@@ -868,14 +868,14 @@ contains
 				soilCstem(ii:n_m,i) = f_q_dec_monthly(biom_loss_stem(i),(n_m-ii+1), &
 	beta_stem(i), eta_11_stem(i), e0_stem(i), fc_stem(i), delay_stem(i), Lat, q0_stem(i)) + &
 	output(ii:n_m,i,9,9)
-				soilCfol(ii,i) = soilCfol(ii,i) * (1.d0 - z_leaves(i))
-				soilCroot(ii,i) = soilCroot(ii,i) * (1.d0 - z_root(i))
-				soilCbranch(ii,i) = soilCbranch(ii,i) * (1.d0 - z_bran(i))
-				soilCstem(ii,i) = soilCstem(ii,i) * (1.d0 - z_stem(i))
-				SOCin(i) = soilCfol(ii,i) * z_leaves(i) + soilCroot(ii,i) * z_root(i) + &
-					soilCbranch(ii,i) * z_bran(i) + soilCstem(ii,i) * z_stem(i)
-				SOC(ii:n_m,i) = f_q_soc_monthly(SOCin(i), (n_m-ii+1), &
-		beta_soc,eta_11_soc,e0_soc,fc_soc,delay_soc,Lat,q0_soc) + output(ii:n_m,i,9,10)
+				! soilCfol(ii,i) = soilCfol(ii,i) * (1.d0 - z_leaves(i))
+				! soilCroot(ii,i) = soilCroot(ii,i) * (1.d0 - z_root(i))
+				! soilCbranch(ii,i) = soilCbranch(ii,i) * (1.d0 - z_bran(i))
+				! soilCstem(ii,i) = soilCstem(ii,i) * (1.d0 - z_stem(i))
+				! SOCin(i) = soilCfol(ii,i) * z_leaves(i) + soilCroot(ii,i) * z_root(i) + &
+					! soilCbranch(ii,i) * z_bran(i) + soilCstem(ii,i) * z_stem(i)
+				! SOC(ii:n_m,i) = f_q_soc_monthly(SOCin(i), (n_m-ii+1), &
+		! beta_soc,eta_11_soc,e0_soc,fc_soc,delay_soc,Lat,q0_soc) + output(ii:n_m,i,9,10)
 				! soilCbranch(i) = f_q_dec((soilCbranch(i)+biom_loss_branches(i)),0.7d0)
 				! soilCstem(i) = f_q_dec((soilCstem(i) + biom_loss_stem(i)),0.7d0)
 				! SOC(i) = f_q_dec((SOC(i) + soilCfol(i)*0.1d0+soilCroot(i)*0.1d0+soilCbranch(i)*0.1d0+ &

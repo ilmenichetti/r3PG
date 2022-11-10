@@ -876,10 +876,6 @@ contains
 					! soilCbranch(ii,i) * z_bran(i) + soilCstem(ii,i) * z_stem(i)
 				! SOC(ii:n_m,i) = f_q_soc_monthly(SOCin(i), (n_m-ii+1), &
 		! beta_soc,eta_11_soc,e0_soc,fc_soc,delay_soc,Lat,q0_soc) + output(ii:n_m,i,9,10)
-				! soilCbranch(i) = f_q_dec((soilCbranch(i)+biom_loss_branches(i)),0.7d0)
-				! soilCstem(i) = f_q_dec((soilCstem(i) + biom_loss_stem(i)),0.7d0)
-				! SOC(i) = f_q_dec((SOC(i) + soilCfol(i)*0.1d0+soilCroot(i)*0.1d0+soilCbranch(i)*0.1d0+ &
-					! soilCstem(i)*0.1d0),0.7d0)
 			enddo
 
             ! Save end of the month results

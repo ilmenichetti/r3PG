@@ -8,8 +8,8 @@
 #' @param thinning table as described in \code{\link{prepare_input}} containing the information about thinnings. See also \code{\link{prepare_thinning}}
 #' @param parameters table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parameters}}
 #' @param size_dist table as described in \code{\link{prepare_input}} containing the information about size distributions. See also \code{\link{prepare_sizeDist}}
-#' @param soilLitPars table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parameters}}
-#' @param soilSOCPars table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parameters}}
+#' @param parsQlitter table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parsQlitter}}
+#' @param parsQsoc table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parsQsoc}}
 #' @param settings a list as described in \code{\link{prepare_input}} with settings for the model.
 #' @param check_input \code{logical} if the input shall be checked for consistency. It will call \code{\link{prepare_input}} function.
 #' @param df_out \code{logical} if the output shall be long data.frame (TRUE) the 4-dimensional array (FALSE).
@@ -61,7 +61,7 @@ run_3PG <- function(
 
     input_checked = prepare_input(site = site, species = species, climate = climate,
       thinning = thinning, parameters = parameters, size_dist = size_dist,
-      settings = settings)
+      settings = settings,parsQlitter = parsQlitter,parsQsoc = parsQsoc)
 
     # extract output from the list
     site = input_checked$site
@@ -69,6 +69,8 @@ run_3PG <- function(
     climate = input_checked$climate
     thinning = input_checked$thinning
     parameters = input_checked$parameters
+    parsQlitter = input_checked$parsQlitter
+    parsQsoc = input_checked$parsQsoc
     size_dist = input_checked$size_dist
     settings = input_checked$settings
 
@@ -98,12 +100,14 @@ run_3PG <- function(
   climate = as.matrix( climate, nrow = n_m, ncol = 9)
 
   # soil parameters
-  if( is.null(parsQlitter) ){
-    parsQlitter <-  as.matrix( d_parsQlitter[,-1], nrow = 24, ncol = n_sp)
-  }
-  if( is.null(parsQsoc) ){
-    parsQsoc <- as.numeric(unlist(d_parsQsoc[,2]))
-  }
+  parsQlitter = as.matrix( parsQlitter[,-1], nrow = 28, ncol = n_sp)
+  # if( is.null(parsQlitter) ){
+  #   parsQlitter <-  as.matrix( d_parsQlitter[,-1], nrow = 24, ncol = n_sp)
+  # }
+  parsQsoc = parsQsoc$value
+  # if( is.null(parsQsoc) ){
+  #   parsQsoc <- as.numeric(unlist(d_parsQsoc[,2]))
+  # }
 
   # initialize soil
   if(!all(is.null(soil)) & !is.matrix(soil)){

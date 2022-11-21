@@ -110,7 +110,7 @@ run_3PG <- function(
   # }
 
   # initialize soil
-  if(!all(is.null(soil)) & !is.matrix(soil)){
+  if(!all(is.null(soil)) & is.vector(soil)){
     ##set parameters
     fc = parsQsoc[4]
     beta = parsQsoc[1]

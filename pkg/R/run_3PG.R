@@ -110,32 +110,40 @@ run_3PG <- function(
   # }
 
   # initialize soil
-  if(!all(is.null(soil)) & is.vector(soil)){
-    ##set parameters
-    fc = parsQsoc[4]
-    beta = parsQsoc[1]
-    e0 = parsQsoc[3]
-    eta_11 = parsQsoc[2]
-    q0 = parsQsoc[6]
-    delay = parsQsoc[5]
-    u0 = u0_calc(site[1])
-
-    SOCt <- matrix(0, n_m, n_sp)
-    for(i in 1:length(soil)){
-      tm <- (1:n_m)/12 ####months as fraction of years
-      q_t = rep(0,n_m)
-      zeta = (1-e0)/(eta_11*e0) #zeta is not variable over time, it is edaphic
-      q_t <- 1/(1+beta*fc*eta_11*u0*q0^beta*tm)^(1/beta)
-      SOCt[,i] <- soil[i] * q_t ^(zeta-beta)
+  soilInit <- array(0,dim = c(n_m,n_sp,5))
+  if(all(is.null(soil))){
+    soil <- soilInit
+  }else{
+    if((length(soil)!=length(matrix(0,n_sp,5)))){
+      stop("check soil input. soil must be a matrix of dimensions:
+             nLayers and 5 (foliage, root, branches, stems and SOC) ")
     }
-    soil <- array(0,dim = c(n_m,n_sp,5))
-    soil[,,5] = SOCt
-  }else if(all(is.null(soil))){
-    soil <- array(0,dim = c(n_m,n_sp,5))
+    soilInit[1,,] <- soil
+    soil <- soilInit
+
+    ###initialize SOC
+      ##set parameters
+      fc = parsQsoc[4]
+      beta = parsQsoc[1]
+      e0 = parsQsoc[3]
+      eta_11 = parsQsoc[2]
+      q0 = parsQsoc[6]
+      delay = parsQsoc[5]
+      u0 = u0_calc(site[1])
+
+      SOCt <- matrix(0, n_m, n_sp)
+      for(i in 1:n_sp){
+        tm <- (1:n_m)/12 ####months as fraction of years
+        q_t = rep(0,n_m)
+        zeta = (1-e0)/(eta_11*e0) #zeta is not variable over time, it is edaphic
+        q_t <- 1/(1+beta*fc*eta_11*u0*q0^beta*tm)^(1/beta)
+        SOCt[,i] <- soil[1,i,5] * q_t ^(zeta-beta)
+      }
+      soil[,,5] = SOCt
+
   }
-  if(!identical(dim(soil),dim(array(0,dim=c(n_m,n_sp,5))))){
-    (print("check soil input"))
-  }
+
+
 
   # thinning
   n_man = dim(thinning)[1]

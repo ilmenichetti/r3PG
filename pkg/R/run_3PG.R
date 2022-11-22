@@ -8,8 +8,8 @@
 #' @param thinning table as described in \code{\link{prepare_input}} containing the information about thinnings. See also \code{\link{prepare_thinning}}
 #' @param parameters table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parameters}}
 #' @param size_dist table as described in \code{\link{prepare_input}} containing the information about size distributions. See also \code{\link{prepare_sizeDist}}
-#' @param soilLitPars table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parameters}}
-#' @param soilSOCPars table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parameters}}
+#' @param parsQlitter table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parameters}}
+#' @param parsQsoc table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parameters}}
 #' @param settings a list as described in \code{\link{prepare_input}} with settings for the model.
 #' @param check_input \code{logical} if the input shall be checked for consistency. It will call \code{\link{prepare_input}} function.
 #' @param df_out \code{logical} if the output shall be long data.frame (TRUE) the 4-dimensional array (FALSE).
@@ -18,7 +18,15 @@
 #'
 #' This implementation of 3-PG includes several major variants / modifications of the model in particular the ability to switch between 3-PGpjs (the more classic model version for monospecific stands) vs. 3-PGmix (a version for mixed stands), as well as options for bias corrections and \eqn{\delta^13 C} calculations (see parameters).
 #'
+#' Another addition is the implementation of the decomposition function from the Q model, as defined in Menichetti et al. (2021).
+#' Briefly, the Q model is a first-order decomposition kinetic based on a generalization of the compartmental model theory, where the decomposing organic material is represented, instead of as a set of different "pools" eahc with a dinstinct decomposition kinetic from the fasterst to the slowest, with a continuous distribution of a quality term (which is the reciprocal of recalcitrance).
+#' The decomposition model is here implemented in a module receiving material from the 3PG simulated tree growth, and in particular to represent the four different cohorts simulated by 3PG: leaves, branches, stems and roots.
+#' The decomposition module kinetics are modified (in the term \eqn{u_o}) by climate, which in this version is calculated based on latitude with a simple empirical relathionship.
+#' \deqn{u0 =(0.0855+0.0157 \cdot (50.6-0.768 \cdot latitude))}
+#' For a more detailed description of the module look into the documentation of its demo version \code{\link{Q_dec}}.
+#'
 #' @note The \code{run_3PG} also checks the quality of input data. When names, or structures are not consistent with requirements it will return an error. Turn this off to optimize for speed.
+#' The parameter table must have the same order than the example in this package.
 #'
 #' @return either a 4-dimentional array or a data.frame, depending on the parameter \code{df_out}. More details on the output is \code{\link{i_output}}
 #'
@@ -31,10 +39,12 @@
 #'
 #' Forrester, D. I., & Tang, X. (2016). Analysing the spatial and temporal dynamics of species interactions in mixed-species forests and the effects of stand density using the 3-PG model. Ecological Modelling, 319, 233–254. \doi{10.1016/j.ecolmodel.2015.07.010}
 #'
-#'Landsberg, J. J., & Waring, R. H., 1997. A generalised model of forest productivity using simplified concepts of radiation-use efficiency, carbon balance and partitioning. Forest Ecology and Management, 95(3), 209–228. \doi{10.1016/S0378-1127(97)00026-1}
+#' Landsberg, J. J., & Waring, R. H., 1997. A generalised model of forest productivity using simplified concepts of radiation-use efficiency, carbon balance and partitioning. Forest Ecology and Management, 95(3), 209–228. \doi{10.1016/S0378-1127(97)00026-1}
 #'
-#'Sands, P. J., 2010. 3PGpjs user manual. Available at the following web site: \url{http://3pg.sites.olt.ubc.ca/files/2014/04/3PGpjs_UserManual.pdf}
+#' Sands, P. J., 2010. 3PGpjs user manual. Available at the following web site: \url{http://3pg.sites.olt.ubc.ca/files/2014/04/3PGpjs_UserManual.pdf}
 #'
+#' Menichetti, L., Mäkinen, H., Stendahl, J., Ågren, G.I., Hyvönen, R., 2021. Modeling persistence of coarse woody debris residuals in boreal forests as an ecological property. Ecosphere 12. https://doi.org/10.1002/ecs2.3792
+
 #' @export
 #'
 #' @useDynLib r3PG
@@ -48,7 +58,7 @@ run_3PG <- function(
   parameters = NULL,
   size_dist = NULL,
   parsQlitter = NULL,
-  parsQsoc = NULL,
+  parsQsoc = NULL, #should we remove this one from here?
   settings = NULL,
   check_input = TRUE,
   df_out = TRUE
@@ -222,7 +232,7 @@ transf.out <- function( sim, sp_names, year_i, month_i ){
 # u0 represents the microbial kinetic. It is usually as a function of latitude, but we can think to make it dependent on climatic factors in the final model version
 # I have a series of function to calculate a reduction coefficient of decomposition with climate, it uses (I guess) the same parameters of 3PG. We need just to introduce a
 # calibrated proportionality coefficient
-# for now we can keep it as funciton of latitude
+# for now we can keep it as function of latitude
 u0_calc<-function(latitude){
   u0_calc=(0.0855+0.0157*(50.6-0.768*latitude))
 }

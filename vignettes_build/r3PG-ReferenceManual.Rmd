@@ -96,6 +96,7 @@ load('vignette_data/solling.rda')
 Loading necessary packages
 
 ```{r libraries}
+
 library(tidyr)
 library(purrr)
 library(BayesianTools)

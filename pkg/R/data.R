@@ -127,6 +127,32 @@
 "d_parameters"
 
 
+### edited by L. Menichetti
+#' Q Parameters input
+#'
+#' Table containing the information about the default parameters for the decomposition module (Q)
+#'
+#' @format A \code{data frame} with 28 rows and x variables, each variable being a particular species:
+#' \describe{
+#'   \item{parameter}{name of the parameter, must be consistent in naming with \code{\link{i_parameters}}}
+#'   \item{Fagus sylvatica}{parameter values for species 1}
+#'   \item{Pinus sylvestris}{parameter values for species 2}
+#' }
+#' The parameters the Q model works with are:
+#' \deqn{\beta}
+#' \deqn{\eta_{11}}
+#' \deqn{e_0}
+#' \deqn{f_c}
+#' \deqn{q_0}
+#' \deqn{delay}
+#' \deqn{z}
+#' and are considered for 4 different cohorts: foliage, roots, branches and stems. A more detailed description is available in the description of the Q model function.
+#' Please note that the table columns are representing tree species, and there must be contained at least the same species you are simulating with the 3PG module!
+
+"d_parsQlitter"
+
+
+
 #' sizeDist input
 #'
 #' Table containing the information about size distribution.

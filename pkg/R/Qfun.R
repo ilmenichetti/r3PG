@@ -1,3 +1,26 @@
+#' @title Q decomposition function
+#' @description A new implementation of the Q model included in this package.
+#' This implementation is derived from Menichetti et al. (2021)
+#'
+#' @param inputs the C inputs for the simulated cohorts
+#' @param fc the C ratio of the input material
+#' @param e0 the efficiency of the microbial biomass
+#' @param eta_11
+#' @param u0 the growth rate of the microbial biomass
+#' @param q0 the initial quality of the C inputs coming to the cohort
+#' @param delay the C inputs for the simulated cohorts
+#' @param tmax the maximum diameter of the material particles or residuals
+#' @param nSim time steps of the simulation
+#'
+#' @details this function is just a demo version of what was then implemented in the FORTRAN code run by the
+#' wrapper \code{\link{run_3PG}}, and its purpose is to simulate the decomposition of the outputs from the growth module 3PG.
+#'
+#'
+#' @example example here
+#'
+#' @references
+#' Menichetti, L., Mäkinen, H., Stendahl, J., Ågren, G.I., Hyvönen, R., 2021. Modeling persistence of coarse woody debris residuals in boreal forests as an ecological property. Ecosphere 12. https://doi.org/10.1002/ecs2.3792
+
 Q_dec<-function(inputs=inputs,
                 fc,
                 beta,

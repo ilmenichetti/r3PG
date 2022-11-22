@@ -21,15 +21,15 @@ run_3PG(site, species, climate, soil = NULL, thinning = NULL,
 
 \item{size_dist}{table as described in \code{\link{prepare_input}} containing the information about size distributions. See also \code{\link{prepare_sizeDist}}}
 
+\item{parsQlitter}{table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parameters}}}
+
+\item{parsQsoc}{table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parameters}}}
+
 \item{settings}{a list as described in \code{\link{prepare_input}} with settings for the model.}
 
 \item{check_input}{\code{logical} if the input shall be checked for consistency. It will call \code{\link{prepare_input}} function.}
 
 \item{df_out}{\code{logical} if the output shall be long data.frame (TRUE) the 4-dimensional array (FALSE).}
-
-\item{soilLitPars}{table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parameters}}}
-
-\item{soilSOCPars}{table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parameters}}}
 }
 \value{
 either a 4-dimentional array or a data.frame, depending on the parameter \code{df_out}. More details on the output is \code{\link{i_output}}
@@ -41,6 +41,12 @@ Runs the 3-PGpjs (monospecific, evenaged and evergreen forests) or 3-PGmix (deci
 `r3PG` provides an implementation of the Physiological Processes Predicting Growth \href{https://3pg.forestry.ubc.ca}{3-PG} model, which simulates forest growth and productivity. The `r3PG` serves as a flexible and easy-to-use interface for the `3-PGpjs` (monospecific, evenaged and evergreen forests) and the `3-PGmix` (deciduous, uneven-aged or mixed-species forests) model written in `Fortran`. The package, allows for fast and easy interaction with the model, and `Fortran` re-implementation facilitates computationally intensive sensitivity analysis and calibration. The user can flexibly switch between various options and submodules, to use the original `3-PGpjs` model version for monospecific, even-aged and evergreen forests and the `3-PGmix` model, which can also simulate multi-cohort stands (e.g. mixtures, uneven-aged) that contain deciduous species.
 
 This implementation of 3-PG includes several major variants / modifications of the model in particular the ability to switch between 3-PGpjs (the more classic model version for monospecific stands) vs. 3-PGmix (a version for mixed stands), as well as options for bias corrections and \eqn{\delta^13 C} calculations (see parameters).
+
+Another addition is the implementation of the decomposition function from the Q model, as defined in Menichetti et al. (2021).
+Briefly, the Q model is a first-order decomposition kinetic based on a generalization of the compartmental model theory, where the decomposing organic material is represented, instead of as a set of different "pools" eahc with a dinstinct decomposition kinetic from the fasterst to the slowest, with a continuous distribution of a quality term (which is the reciprocal of recalcitrance).
+The decomposition model is here implemented in a module receiving material from the 3PG simulated tree growth, and in particular to represent the four different cohorts simulated by 3PG: leaves, branches, stems and roots.
+The decomposition module kinetics are modified (in the term \eqn{u_o}) by climate, which in this version is calculated based on latitude with a simple empirical relathionship.
+\deqn{u0 =(0.0855+0.0157*(50.6-0.768*latitude))}
 }
 \note{
 The \code{run_3PG} also checks the quality of input data. When names, or structures are not consistent with requirements it will return an error. Turn this off to optimize for speed.
@@ -53,6 +59,7 @@ out <- run_3PG(
   thinning = d_thinning,
   parameters = d_parameters,
   size_dist = d_sizeDist,
+  parsQlitter = NULL,
   settings = list(light_model = 2, transp_model = 2, phys_model = 2,
                   correct_bias = 1, calculate_d13c = 0),
   check_input = TRUE, df_out = TRUE) # note that default is TRUE
@@ -67,6 +74,8 @@ Forrester, D. I., & Tang, X. (2016). Analysing the spatial and temporal dynamics
 Landsberg, J. J., & Waring, R. H., 1997. A generalised model of forest productivity using simplified concepts of radiation-use efficiency, carbon balance and partitioning. Forest Ecology and Management, 95(3), 209–228. \doi{10.1016/S0378-1127(97)00026-1}
 
 Sands, P. J., 2010. 3PGpjs user manual. Available at the following web site: \url{http://3pg.sites.olt.ubc.ca/files/2014/04/3PGpjs_UserManual.pdf}
+
+Menichetti, L., Mäkinen, H., Stendahl, J., Ågren, G.I., Hyvönen, R., 2021. Modeling persistence of coarse woody debris residuals in boreal forests as an ecological property. Ecosphere 12. https://doi.org/10.1002/ecs2.3792
 }
 \seealso{
 \code{\link{prepare_input}}, \code{\link{prepare_parameters}}, \code{\link{prepare_sizeDist}}, \code{\link{prepare_thinning}}, \code{\link{prepare_climate}}

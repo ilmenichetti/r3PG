@@ -8,8 +8,13 @@
 #' @param thinning table as described in \code{\link{prepare_input}} containing the information about thinnings. See also \code{\link{prepare_thinning}}
 #' @param parameters table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parameters}}
 #' @param size_dist table as described in \code{\link{prepare_input}} containing the information about size distributions. See also \code{\link{prepare_sizeDist}}
+<<<<<<< HEAD
 #' @param parsQlitter table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parameters}}
 #' @param parsQsoc table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parameters}}
+=======
+#' @param parsQlitter table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parsQlitter}}
+#' @param parsQsoc table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parsQsoc}}
+>>>>>>> 8332df8492245ba2e61400751769d0f295b1002a
 #' @param settings a list as described in \code{\link{prepare_input}} with settings for the model.
 #' @param check_input \code{logical} if the input shall be checked for consistency. It will call \code{\link{prepare_input}} function.
 #' @param df_out \code{logical} if the output shall be long data.frame (TRUE) the 4-dimensional array (FALSE).
@@ -71,7 +76,7 @@ run_3PG <- function(
 
     input_checked = prepare_input(site = site, species = species, climate = climate,
       thinning = thinning, parameters = parameters, size_dist = size_dist,
-      settings = settings)
+      settings = settings,parsQlitter = parsQlitter,parsQsoc = parsQsoc)
 
     # extract output from the list
     site = input_checked$site
@@ -79,6 +84,8 @@ run_3PG <- function(
     climate = input_checked$climate
     thinning = input_checked$thinning
     parameters = input_checked$parameters
+    parsQlitter = input_checked$parsQlitter
+    parsQsoc = input_checked$parsQsoc
     size_dist = input_checked$size_dist
     settings = input_checked$settings
 
@@ -108,40 +115,50 @@ run_3PG <- function(
   climate = as.matrix( climate, nrow = n_m, ncol = 9)
 
   # soil parameters
-  if( is.null(parsQlitter) ){
-    parsQlitter <-  as.matrix( d_parsQlitter[,-1], nrow = 24, ncol = n_sp)
-  }
-  if( is.null(parsQsoc) ){
-    parsQsoc <- as.numeric(unlist(d_parsQsoc[,2]))
-  }
+  parsQlitter = as.matrix( parsQlitter[,-1], nrow = 28, ncol = n_sp)
+  # if( is.null(parsQlitter) ){
+  #   parsQlitter <-  as.matrix( d_parsQlitter[,-1], nrow = 24, ncol = n_sp)
+  # }
+  parsQsoc = parsQsoc$value
+  # if( is.null(parsQsoc) ){
+  #   parsQsoc <- as.numeric(unlist(d_parsQsoc[,2]))
+  # }
 
   # initialize soil
-  if(!all(is.null(soil)) & !is.matrix(soil)){
-    ##set parameters
-    fc = parsQsoc[4]
-    beta = parsQsoc[1]
-    e0 = parsQsoc[3]
-    eta_11 = parsQsoc[2]
-    q0 = parsQsoc[6]
-    delay = parsQsoc[5]
-    u0 = u0_calc(site[1])
-
-    SOCt <- matrix(0, n_m, n_sp)
-    for(i in 1:length(soil)){
-      tm <- (1:n_m)/12 ####months as fraction of years
-      q_t = rep(0,n_m)
-      zeta = (1-e0)/(eta_11*e0) #zeta is not variable over time, it is edaphic
-      q_t <- 1/(1+beta*fc*eta_11*u0*q0^beta*tm)^(1/beta)
-      SOCt[,i] <- soil[i] * q_t ^(zeta-beta)
+  soilInit <- array(0,dim = c(n_m,n_sp,5))
+  if(all(is.null(soil))){
+    soil <- soilInit
+  }else{
+    if((length(soil)!=length(matrix(0,n_sp,5)))){
+      stop("check soil input. soil must be a matrix of dimensions:
+             nLayers and 5 (foliage, root, branches, stems and SOC) ")
     }
-    soil <- array(0,dim = c(n_m,n_sp,5))
-    soil[,,5] = SOCt
-  }else if(all(is.null(soil))){
-    soil <- array(0,dim = c(n_m,n_sp,5))
+    soilInit[1,,] <- soil
+    soil <- soilInit
+
+    ###initialize SOC
+      ##set parameters
+      fc = parsQsoc[4]
+      beta = parsQsoc[1]
+      e0 = parsQsoc[3]
+      eta_11 = parsQsoc[2]
+      q0 = parsQsoc[6]
+      delay = parsQsoc[5]
+      u0 = u0_calc(site[1])
+
+      SOCt <- matrix(0, n_m, n_sp)
+      for(i in 1:n_sp){
+        tm <- (1:n_m)/12 ####months as fraction of years
+        q_t = rep(0,n_m)
+        zeta = (1-e0)/(eta_11*e0) #zeta is not variable over time, it is edaphic
+        q_t <- 1/(1+beta*fc*eta_11*u0*q0^beta*tm)^(1/beta)
+        SOCt[,i] <- soil[1,i,5] * q_t ^(zeta-beta)
+      }
+      soil[,,5] = SOCt
+
   }
-  if(!identical(dim(soil),dim(array(0,dim=c(n_m,n_sp,5))))){
-    (print("check soil input"))
-  }
+
+
 
   # thinning
   n_man = dim(thinning)[1]

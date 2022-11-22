@@ -29,6 +29,33 @@
 "i_parameters"
 
 
+#' Information about Q litter parameters
+#'
+#' A dataset containing the parameters order and description for Q litter.
+#'
+#' @format A data frame with 28 rows and 3 variables:
+#' \describe{
+#'   \item{parameter}{parameter name}
+#'   \item{description}{description of the parameter}
+#'   \item{unit}{unit}
+#'   \item{default}{default value for E.globulus from original 3-PG}
+#' }
+"i_parsQlitter"
+
+
+#' Information about Q SOC parameters
+#'
+#' A dataset containing the parameters order and description for Q SOC.
+#'
+#' @format A data frame with 6 rows and 3 variables:
+#' \describe{
+#'   \item{parameter}{parameter name}
+#'   \item{description}{description of the parameter}
+#'   \item{unit}{unit}
+#'   \item{default}{default value for E.globulus from original 3-PG}
+#' }
+"i_parsQsoc"
+
 #' Information about size distribution parameters
 #'
 #' A dataset containing the parameters order and description.
@@ -126,6 +153,28 @@
 #' }
 "d_parameters"
 
+#' Q litter Parameters input
+#'
+#' Table containing the information about parameters.
+#'
+#' @format A \code{data frame} with 28 rows and x variables:
+#' \describe{
+#'   \item{parameter}{name of the parameter, must be consistent in naming with \code{\link{i_parameters}}}
+#'   \item{Fagus sylvatica}{parameter values for species 1}
+#'   \item{Pinus sylvestris}{parameter values for species 2}
+#' }
+"d_parsQlitter"
+
+#' Parameters input
+#'
+#' Table containing the information about Q SOC parameters.
+#'
+#' @format A \code{data frame} with 65 rows and x variables:
+#' \describe{
+#'   \item{parameter}{name of the parameter, must be consistent in naming with \code{\link{i_parameters}}}
+#'   \item{value}{parameter values}
+#' }
+"d_parsQsoc"
 
 ### edited by L. Menichetti
 #' Q Parameters input

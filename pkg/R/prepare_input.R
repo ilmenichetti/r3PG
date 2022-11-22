@@ -50,6 +50,15 @@
 #' \item parameter: name of the parameter, must be consistent in naming with \code{\link{i_parameters}}
 #' \item species: each column must correspond to species/cohort id/name, as defined in \code{species} table
 #' }
+#' @param parsQlitter table containing the information about Q litter parameters to be modified. Values that are not provided are replaced by defaults.
+#' \itemize{
+#' \item parameter: name of the parameter, must be consistent in naming with \code{\link{i_parsQlitter}}
+#' \item species: each column must correspond to species/cohort id/name, as defined in \code{species} table
+#' }
+#' @param parsQsoc table containing the information about Q soc parameters to be modified. Values that are not provided are replaced by defaults.
+#' \itemize{
+#' \item parameter: name of the parameter, must be consistent in naming with \code{\link{i_parsQsoc}}
+#' }
 #' @param size_dist table containing the information about size distribution to be modified. Values that are not provided are replaced by defaults.
 #' \itemize{
 #' \item parameter: name of the parameter, must be consistent in naming with \code{\link{i_sizeDist}}
@@ -87,7 +96,9 @@ prepare_input <- function(
   thinning = NULL,
   parameters = NULL,
   size_dist = NULL,
-  settings = NULL
+  settings = NULL,
+  parsQlitter = NULL,
+  parsQsoc = NULL
 ){
 
   # Site
@@ -119,6 +130,12 @@ prepare_input <- function(
   # Parameters
   parameters = prepare_parameters( parameters = parameters, sp_names = species$species)
 
+  # Parameters Q litter
+  parsQlitter = prepare_parsQlitter( parameters = parsQlitter, sp_names = species$species)
+
+  # Parameters Q soc
+  parsQsoc = prepare_parsQsoc( parameters = parsQsoc)
+
   # Size distribution
   if( set_def['correct_bias'] == 1 & is.null(size_dist) ){
     stop('Please provide size_dist table or change the setting to size_dist = 0')
@@ -127,7 +144,8 @@ prepare_input <- function(
 
 
   # return the checked output
-  out <- list( site = site, species = species, climate = climate, thinning = thinning, parameters = parameters, size_dist = size_dist, settings = set_def)
+  out <- list( site = site, species = species, climate = climate, thinning = thinning, parameters = parameters, size_dist = size_dist, settings = set_def,
+               parsQlitter = parsQlitter,parsQsoc = parsQsoc)
 
   return( out )
 }

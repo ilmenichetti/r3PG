@@ -1,9 +1,9 @@
 #' @title Prepare Q parameters Litter table
-#' @description Prepares the litter parameters table used in Q, by either replicating the defaults or replicating defaults for each of the species.
+#' @description Prepares the soc parameters table used in Q, by either replicating the defaults or replicating defaults.
 #'
 #' @param parameters table containing the information about parameters to be modified. Values that are not provided are replaced by defaults.
 #' \itemize{
-#' \item parameter: name of the parameter, must be consistent in naming with \code{\link{i_parsQlitter}}
+#' \item parameter: name of the parameter, must be consistent in naming with \code{\link{i_parsQsoc}}
 #' \item species: each column must correspond to species/cohort id/name, as defined in \code{species} table
 #' }
 #' @param sp_names names of the species / cohorts used for the simulations.The `sp_names` must be identical to those from \code{species} table.
@@ -18,21 +18,20 @@
 #'
 #' @export
 #'
-prepare_parsQlitter <- function(
-  parameters = NULL,
-  sp_names = c('Fagus sylvatica', 'Pinus sylvestris')
+prepare_parsQsoc <- function(
+  parameters = NULL
 ){
 
-  if( any( is.null(sp_names), is.na(sp_names), length(sp_names)==0L) ){
-    stop( 'sp_names must be provided according to the species table.' )
-  }
-  param.default <- i_parsQlitter
+  # if( any( is.null(sp_names), is.na(sp_names), length(sp_names)==0L) ){
+  #   stop( 'sp_names must be provided according to the species table.' )
+  # }
+  param.default <- i_parsQsoc
   # Prepare parameters
   parameters_out = param.default['parameter']
 
-  parameters_out[sp_names] <- NA_real_
+  # parameters_out <- NA_real_
 
-  parameters_out[sp_names] <- param.default$default
+  parameters_out$value <- param.default$default
 
 
   if( !is.null(parameters) ){
@@ -45,8 +44,8 @@ prepare_parsQlitter <- function(
       stop( paste0('Parameter input table must contains only parameters presend in: ', paste(param.default$parameter, collapse = ','),'. Check `param_info`` for more details.' ))
     }
 
-    sp_names_replace = sp_names[sp_names %in% colnames(parameters)]
-    parameters_out[match(parameters$parameter, parameters_out$parameter), sp_names_replace] <- parameters[,sp_names_replace]
+    # sp_names_replace = sp_names[sp_names %in% colnames(parameters)]
+    parameters_out[match(parameters$parameter, parameters_out$parameter), 2] <- parameters[,2]
   }
 
   return( parameters_out )

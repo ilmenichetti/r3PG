@@ -8,13 +8,11 @@
 #' @param thinning table as described in \code{\link{prepare_input}} containing the information about thinnings. See also \code{\link{prepare_thinning}}
 #' @param parameters table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parameters}}
 #' @param size_dist table as described in \code{\link{prepare_input}} containing the information about size distributions. See also \code{\link{prepare_sizeDist}}
-<<<<<<< HEAD
 #' @param parsQlitter table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parameters}}
 #' @param parsQsoc table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parameters}}
-=======
 #' @param parsQlitter table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parsQlitter}}
 #' @param parsQsoc table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parsQsoc}}
->>>>>>> 8332df8492245ba2e61400751769d0f295b1002a
+#' @param soil table containing the information about the decomposing C pools initialization
 #' @param settings a list as described in \code{\link{prepare_input}} with settings for the model.
 #' @param check_input \code{logical} if the input shall be checked for consistency. It will call \code{\link{prepare_input}} function.
 #' @param df_out \code{logical} if the output shall be long data.frame (TRUE) the 4-dimensional array (FALSE).
@@ -126,15 +124,15 @@ run_3PG <- function(
 
   # initialize soil
   soilInit <- array(0,dim = c(n_m,n_sp,5))
-  if(all(is.null(soil))){
+  if(all(is.null(soil))){ #if there is no decomposing pool initialization, then set all to zero
     soil <- soilInit
   }else{
-    if((length(soil)!=length(matrix(0,n_sp,5)))){
+    if((length(soil)!=length(matrix(0,n_sp,5)))){ # if the pool initialization matrix is not n_sp * 5 then stop
       stop("check soil input. soil must be a matrix of dimensions:
              nLayers and 5 (foliage, root, branches, stems and SOC) ")
     }
-    soilInit[1,,] <- soil
-    soil <- soilInit
+    soilInit[1,,] <- soil #soilInit first month set to pool initialization
+    soil <- soilInit # the pool initialization must be a matrix as long as number of months for internal requirements of the fortran function
 
     ###initialize SOC
       ##set parameters

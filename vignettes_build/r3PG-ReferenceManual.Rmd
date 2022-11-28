@@ -1,14 +1,14 @@
 ---
-title: "The r3PG R package"
-author: "Volodymyr Trotsiuk, Florian Hartig, David I. Forrester"
+title: "The r3PGq R package"
+author: "Francesco Minunno and Lorenzo Menichetti over the original package by Volodymyr Trotsiuk, Florian Hartig, David I. Forrester"
 date: "`r Sys.Date()`"
-abstract: "This vignette provides an overview of the r3PG R package functions and options. We provide a working examples that (i) demonstrates the basic functionality and use of the package, (ii) performs a sensitivity analysis and a Bayesian calibration of the model, and (iii) uses the calibrated model to simulate spatial patterns of forest growth across Switzerland.  \n \n \n"
+abstract: "This vignette provides an overview of the r3PGq R package functions and options. The package is a modification of the original r3PG package, to which a decomposition model (Q) coupled with the grouwth model was added. We provide, besides the originial working examples for the r3PG package demonstrating the basic functionality and use of the package, additional examples to demonstrate the added functionalities  \n \n \n"
 output: 
   rmarkdown::html_vignette:
     toc: true
     toc_depth: 3
 vignette: >
-  %\VignetteIndexEntry{Vignette for the r3PG R package}
+  %\VignetteIndexEntry{Vignette for the r3PGq R package}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8](inputenc)
 ---
@@ -25,10 +25,19 @@ knitr::opts_chunk$set(
 library(knitr)
 ```
 
-## Purpose
+# Purpose and introduction
 
+The package is a modification of the original `r3PG` package, with an added module for organic matter decomposition to allow the model to simulate the full C balance of a tree community.
+
+## `r3PG`
 `r3PG` provides an implementation of the Physiological Processes Predicting Growth ([3-PG](https://3pg.forestry.ubc.ca)) model (Landsberg & Waring, 1997). The `r3PG` serves as a flexible and easy-to-use interface for the `3-PGpjs` (Sands, 2010) and the `3-PGmix` (Forrester & Tang, 2016) models written in `Fortran`. The package, allows for fast and easy interaction with the model, and `Fortran` re-implementation facilitates computationally intensive sensitivity analysis and calibration. The user can flexibly switch between various options and submodules to use the original `3-PGpjs` model version for monospecific, even-aged and evergreen forests and the `3-PGmix` model, which can also simulate multi-cohort stands (e.g. mixtures, uneven-aged) that contain deciduous species.
 
+## The Q decomposition model
+The 
+
+
+
+# The original `r3PG` package
 
 ## Single model runs
 

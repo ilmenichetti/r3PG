@@ -81,7 +81,6 @@ C_init<-function(lat,
                  thinning,
                  parameters,
                  parsQlitter,
-                 soil,
                  size_dist,
                  settings = list(light_model = 2, transp_model = 2, phys_model = 2,
                                  height_model = 1, correct_bias = 0, calculate_d13c = 0)){
@@ -133,7 +132,7 @@ C_init<-function(lat,
                             u0=u0_calc(lat),
                             fc=as.numeric(Qpars[i,]$fc_stem),
                             eta11=as.numeric(Qpars[i,]$eta_11_stem),
-                            Tmax=3,
+                            Tmax=mean(init_out[,i,2,5]),
                             inputs=mean(init_out[,i,4,12]))
 
     soilInit_out[i,4]<-Q_ss(b=as.numeric(Qpars[i,]$beta_bran),

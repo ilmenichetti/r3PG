@@ -50,6 +50,30 @@ contains
         include 'i_init_var.h'
 
 
+        !INITIALIZE soilC with Q
+        !*************************************************************************************
+!!calculate soilC with Q
+        do i = 1, n_sp
+			soilCfol(1:n_m,i) = f_q_dec_monthly(soilInputs(1,i,1),(n_m-1+1), &
+				beta_fol(i), eta_11_fol(i), e0_fol(i), fc_fol(i), delay_fol(i), Lat, q0_fol(i))
+			soilCroot(1:n_m,i) = f_q_dec_monthly(soilInputs(1,i,2),(n_m-1+1), &
+				beta_root(i), eta_11_root(i), e0_root(i), fc_root(i), delay_root(i), Lat, q0_root(i))
+			soilCbranch(1:n_m,i) = f_q_dec_monthly(soilInputs(1,i,3),(n_m-1+1), &
+				beta_bran(i), eta_11_bran(i), e0_bran(i), fc_bran(i), delay_bran(i), Lat, q0_bran(i))
+			soilCstem(1:n_m,i) = f_q_dec_monthly(soilInputs(1,i,4),(n_m-1+1), &
+				beta_stem(i), eta_11_stem(i), e0_stem(i), fc_stem(i), delay_stem(i), Lat, q0_stem(i))
+				! soilCfol(1,i) = soilCfol(1,i) * (1.d0 - z_leaves(i))
+				! soilCroot(1,i) = soilCroot(1,i) * (1.d0 - z_root(i))
+				! soilCbranch(1,i) = soilCbranch(1,i) * (1.d0 - z_bran(i))
+				! soilCstem(1,i) = soilCstem(1,i) * (1.d0 - z_stem(i))
+				! SOCin(i) = soilCfol(1,i) * z_leaves(i) + soilCroot(1,i) * z_root(i) + &
+					! soilCbranch(1,i) * z_bran(i) + soilCstem(1,i) * z_stem(i)
+				! SOC(1:n_m,i) = f_q_soc_monthly(SOCin(i), (n_m-1+1), &
+		! beta_soc,eta_11_soc,e0_soc,fc_soc,delay_soc,Lat,q0_soc) + output(1:n_m,i,9,10)
+		enddo
+        !*************************************************************************************
+		
+
         !*************************************************************************************
         ! INITIALISATION (Age independent)
 

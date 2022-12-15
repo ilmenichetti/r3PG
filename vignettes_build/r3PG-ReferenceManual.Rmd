@@ -33,11 +33,13 @@ The package is a modification of the original `r3PG` package, with an added modu
 `r3PG` provides an implementation of the Physiological Processes Predicting Growth ([3-PG](https://3pg.forestry.ubc.ca)) model (Landsberg & Waring, 1997). The `r3PG` serves as a flexible and easy-to-use interface for the `3-PGpjs` (Sands, 2010) and the `3-PGmix` (Forrester & Tang, 2016) models written in `Fortran`. The package, allows for fast and easy interaction with the model, and `Fortran` re-implementation facilitates computationally intensive sensitivity analysis and calibration. The user can flexibly switch between various options and submodules to use the original `3-PGpjs` model version for monospecific, even-aged and evergreen forests and the `3-PGmix` model, which can also simulate multi-cohort stands (e.g. mixtures, uneven-aged) that contain deciduous species.
 
 ## The Q decomposition model
-The 
+The Q decomposition model is a generalization of the structure of compartmental first-order kinetic decomposition models. Instead of describing the decomposing material as a series of interconnected "pools" each with its own decomposition kinetic related to its characteristics, describes the full mass of decomposing organic matter with a continuous distribution function of its quality. This approach has been defined as  "continuous quality theory" in its original formulation (Ågren and Bosatta, 1996).
+The Q model is used here to follow the decomposition of four different organic matter sources represented by 3PG: leaves, roots, stems and branches, and it is run separately for each of these sources.
 
 
 
-# The original `r3PG` package
+# The `r3PG` model to simulate the growth of forest stands
+The growth model can be run alone
 
 ## Single model runs
 
@@ -403,6 +405,14 @@ sim.grid %>%
 ```
 
 
+
+# The `r3PGq` model to simulate the evolution of C stocks and growth of forest stands
+
+## Single model runs
+
+
+
+
 ## References
 
 * Forrester, D. I., Tachauer, I. H. H., Annighoefer, P., Barbeito, I., Pretzsch, H., Ruiz-Peinado, R., … Sileshi, G. W. (2017). Generalized biomass and leaf area allometric equations for European tree species incorporating stand structure, tree age and climate. Forest Ecology and Management, 396, 160–175. https://doi.org/10.1016/j.foreco.2017.04.011
@@ -415,6 +425,7 @@ sim.grid %>%
 
 * Thornton, P. E., Running, S. W., & White, M. A. (1997). Generating surfaces of daily meteorological variables over large regions of complex terrain. Journal of Hydrology, 190(3), 214–251. https://doi.org/10.1016/S0022-1694(96)03128-9
 
+* Ågren, G. I., Bosatta, E., 1996. Quality: A Bridge between Theory and Experiment in Soil Organic Matter Studies. Oikos 76, 522. https://doi.org/10.2307/3546345
 
 ## Session 
 

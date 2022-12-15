@@ -5,7 +5,8 @@
 \title{Check and prepare input for running 3-PG model}
 \usage{
 prepare_input(site, species, climate, thinning = NULL, parameters = NULL,
-  size_dist = NULL, settings = NULL)
+  size_dist = NULL, settings = NULL, parsQlitter = NULL,
+  parsQsoc = NULL)
 }
 \arguments{
 \item{site}{table containing the information about site conditions.
@@ -76,6 +77,17 @@ prepare_input(site, species, climate, thinning = NULL, parameters = NULL,
 \item height_model: `1` - linear (default); `2` - non-linear
 \item correct_bias: `0` - no (default); `1` - yes
 \item calculate_d13c: `0` - no (default); `1` - yes
+}}
+
+\item{parsQlitter}{table containing the information about Q litter parameters to be modified. Values that are not provided are replaced by defaults.
+\itemize{
+\item parameter: name of the parameter, must be consistent in naming with \code{\link{i_parsQlitter}}
+\item species: each column must correspond to species/cohort id/name, as defined in \code{species} table
+}}
+
+\item{parsQsoc}{table containing the information about Q soc parameters to be modified. Values that are not provided are replaced by defaults.
+\itemize{
+\item parameter: name of the parameter, must be consistent in naming with \code{\link{i_parsQsoc}}
 }}
 }
 \value{

@@ -3,8 +3,15 @@
 \docType{data}
 \name{d_parsQlitter}
 \alias{d_parsQlitter}
-\title{Q Parameters input}
+\title{Q litter Parameters input}
 \format{
+A \code{data frame} with 28 rows and x variables:
+\describe{
+  \item{parameter}{name of the parameter, must be consistent in naming with \code{\link{i_parameters}}}
+  \item{Fagus sylvatica}{parameter values for species 1}
+  \item{Pinus sylvestris}{parameter values for species 2}
+}
+
 A \code{data frame} with 28 rows and x variables, each variable being a particular species:
 \describe{
   \item{parameter}{name of the parameter, must be consistent in naming with \code{\link{i_parameters}}}
@@ -24,8 +31,12 @@ Please note that the table columns are representing tree species, and there must
 }
 \usage{
 d_parsQlitter
+
+d_parsQlitter
 }
 \description{
+Table containing the information about parameters.
+
 Table containing the information about the default parameters for the decomposition module (Q)
 }
 \keyword{datasets}

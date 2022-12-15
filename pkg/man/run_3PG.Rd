@@ -15,15 +15,17 @@ run_3PG(site, species, climate, soil = NULL, thinning = NULL,
 
 \item{climate}{table as described in \code{\link{prepare_input}} containing the information about monthly values for climatic data. See also \code{\link{prepare_climate}}}
 
+\item{soil}{table containing the information about the decomposing C pools initialization}
+
 \item{thinning}{table as described in \code{\link{prepare_input}} containing the information about thinnings. See also \code{\link{prepare_thinning}}}
 
 \item{parameters}{table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parameters}}}
 
 \item{size_dist}{table as described in \code{\link{prepare_input}} containing the information about size distributions. See also \code{\link{prepare_sizeDist}}}
 
-\item{parsQlitter}{table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parameters}}}
+\item{parsQlitter}{table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parsQlitter}}}
 
-\item{parsQsoc}{table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parameters}}}
+\item{parsQsoc}{table as described in \code{\link{prepare_input}} containing the information about parameters to be modified. See also \code{\link{prepare_parsQsoc}}}
 
 \item{settings}{a list as described in \code{\link{prepare_input}} with settings for the model.}
 
@@ -46,10 +48,12 @@ Another addition is the implementation of the decomposition function from the Q 
 Briefly, the Q model is a first-order decomposition kinetic based on a generalization of the compartmental model theory, where the decomposing organic material is represented, instead of as a set of different "pools" eahc with a dinstinct decomposition kinetic from the fasterst to the slowest, with a continuous distribution of a quality term (which is the reciprocal of recalcitrance).
 The decomposition model is here implemented in a module receiving material from the 3PG simulated tree growth, and in particular to represent the four different cohorts simulated by 3PG: leaves, branches, stems and roots.
 The decomposition module kinetics are modified (in the term \eqn{u_o}) by climate, which in this version is calculated based on latitude with a simple empirical relathionship.
-\deqn{u0 =(0.0855+0.0157*(50.6-0.768*latitude))}
+\deqn{u0 =(0.0855+0.0157 \cdot (50.6-0.768 \cdot latitude))}
+For a more detailed description of the module look into the documentation of its demo version \code{\link{Q_dec}}.
 }
 \note{
 The \code{run_3PG} also checks the quality of input data. When names, or structures are not consistent with requirements it will return an error. Turn this off to optimize for speed.
+The parameter table must have the same order than the example in this package.
 }
 \examples{
 out <- run_3PG(

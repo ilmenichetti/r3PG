@@ -4,15 +4,39 @@
 \alias{C_init}
 \title{Initializing the steady states of the decomposing pools}
 \usage{
-C_init(lat, site, species, climate, thinning, parameters, parsQlitter, soil,
+C_init(lat, site, species, climate, thinning, parameters, parsQlitter,
   size_dist, settings = list(light_model = 2, transp_model = 2, phys_model =
   2, height_model = 1, correct_bias = 0, calculate_d13c = 0))
 }
 \arguments{
-\item{settings}{}
+\item{site}{refer to \code{\link{run_3PG}}}
 
-\item{latitude}{self explanatory}
+\item{species}{refer to \code{\link{run_3PG}}}
+
+\item{climate}{refer to \code{\link{run_3PG}}}
+
+\item{thinning}{refer to \code{\link{run_3PG}}}
+
+\item{parameters}{refer to \code{\link{run_3PG}}}
+
+\item{parsQlitter}{refer to \code{\link{run_3PG}}}
+
+\item{size_dist}{refer to \code{\link{run_3PG}}}
+
+\item{settings}{refer to \code{\link{run_3PG}}}
+
+\item{latitude}{self explanatory, it is used to initialize the Q model throught the function  refer to \code{\link{u0_calc}}}
+
+\item{soil}{refer to \code{\link{run_3PG}}}
 }
 \description{
-Initializing the steady states of the decomposing pools
+This function utilizes the steady states solutions for the Q decomposition model  \code{\link{Q_ss}} to initialize the decomposing pools assuming that the simulation starts at their steady states, which are determined once the Q model parameters are known and we can assume steady inputs.
+ It assumes, with some approximation, as steady inputs of C the average inputs from a whole management cycle.
+}
+\details{
+the function assumes the management plan from the function \code{\link{management_plan}}, which contains the references for standard Swedish clear-cut forestry practices
+The function considers as simulation length the whole cycle indicated by \code{\link{management_plan}} plus one year, and utilizes the function \code{\link{extend_time}} to repeat the provided climatic time series over the needed time.
+}
+\seealso{
+\code{\link{management_plan}}, \code{\link{extend_time}}, \code{\link{u0_calc}}, , \code{\link{Q_ss}}
 }

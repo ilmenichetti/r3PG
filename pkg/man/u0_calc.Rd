@@ -10,7 +10,7 @@ u0_calc(latitude)
 \item{lat}{latitude, self explanatory}
 }
 \description{
-Scaling of the microbial activity term
+
 }
 \details{
 The function is used to rescale the microbial activity (and therefore the kinetic of decomposition)
@@ -18,4 +18,7 @@ based on latitude
 }
 \references{
 Menichetti, L., Mäkinen, H., Stendahl, J., Ågren, G.I., Hyvönen, R., 2021. Modeling persistence of coarse woody debris residuals in boreal forests as an ecological property. Ecosphere 12. https://doi.org/10.1002/ecs2.3792
+}
+\seealso{
+\code{\link{Q_ss}}
 }

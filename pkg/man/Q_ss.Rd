@@ -20,11 +20,14 @@ Q_ss(fc, inputs, e0, eta11, b, u0, q0, Tmax)
 \item{tmax}{the maximum diameter of the material particles or residuals}
 }
 \description{
-Steady state solution to the  Q decomposition function
+
 }
 \details{
 The function is used to initialize the decomposing pools in the C stocks simulation
 }
 \references{
 Menichetti, L., Mäkinen, H., Stendahl, J., Ågren, G.I., Hyvönen, R., 2021. Modeling persistence of coarse woody debris residuals in boreal forests as an ecological property. Ecosphere 12. https://doi.org/10.1002/ecs2.3792
+}
+\seealso{
+\code{\link{C_init}}
 }

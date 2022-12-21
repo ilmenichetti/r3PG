@@ -62,11 +62,13 @@ u0_calc<-function(lat){
 
 
 
-#' @title Initializing the steady states of the decomposing pools
+#' @title Initializing the steady states of the decomposing pools (based on a simulated Picea abies stand)
 #' @description This function utilizes the steady states solutions for the Q decomposition model  \code{\link{Q_ss}} to initialize the decomposing pools assuming that the simulation starts at their steady states, which are determined once the Q model parameters are known and we can assume steady inputs.
 #'  It assumes, with some approximation, as steady inputs of C the average inputs from a whole management cycle.
+#'  When initializing multiple layers, the function assigns the initialized C masses calculated from the initialization simulation proportionally to the number of stems of each layer.
 #'
 #' @param latitude self explanatory, it is used to initialize the Q model throught the function  refer to \code{\link{u0_calc}}
+#' @param SI the site index
 #' @param site refer to \code{\link{run_3PG}}
 #' @param species  refer to \code{\link{run_3PG}}
 #' @param climate  refer to \code{\link{run_3PG}}
@@ -79,10 +81,13 @@ u0_calc<-function(lat){
 #'
 #' @details the function assumes the management plan from the function \code{\link{management_plan}}, which contains the references for standard Swedish clear-cut forestry practices
 #' The function considers as simulation length the whole cycle indicated by \code{\link{management_plan}} plus one year, and utilizes the function \code{\link{extend_time}} to repeat the provided climatic time series over the needed time.
+#' Because of this, the function assumes a pure stand of Picea abies as former management.
 #'
 #' @seealso \code{\link{management_plan}}, \code{\link{extend_time}}, \code{\link{u0_calc}}, , \code{\link{Q_ss}}
 
+
 C_init<-function(lat,
+                 SI,
                  site,
                  species,
                  climate,
@@ -93,19 +98,21 @@ C_init<-function(lat,
                  settings = list(light_model = 2, transp_model = 2, phys_model = 2,
                                  height_model = 1, correct_bias = 0, calculate_d13c = 0)){
 
-
+  #simulating a standard management plan (Picea abies)
   management<-management_plan(SI,lat)
   thinning_boolean<-management[8:11]!=1
   management[9]<-management[8]*management[9]
   management[10]<-management[9]*management[10]
   management[11]<-management[10]*management[11]
 
-  main_species<-species[which.max(species$stems_n),]
+  main_species<-species[which.max(species$stems_n),] #legacy, when the simulation was based on the most represented species. It is there to initialize the matrix
+  main_species$species<- "Picea abies"
   main_species$stems_n<-management$N
   main_thinning<-thinning[0,]
   for(i in 1:length(which(thinning_boolean))){
     if(thinning_boolean[i]==T){
-      main_thinning_line<-thinning[thinning$species==as.character(main_species[1]),][1,]
+      main_thinning_line<-thinning[1,][1,]
+      main_thinning_line$species<- "Picea abies"
       main_thinning_line$age=management[2+i]
       main_thinning_line$stems_n=round(management[7+i]*management$N)
       main_thinning_line$stem=1
@@ -115,8 +122,9 @@ C_init<-function(lat,
     }
   }
 
-  #final felling
+  #adding the final felling to the management plan
   main_thinning_last_line<-thinning[thinning$species==as.character(main_species[1]),][1,]
+  main_thinning_last_line$species<- "Picea abies"
   main_thinning_last_line$age<-management$gm
   main_thinning_last_line$stems_n<-0 #no stems are left
   main_thinning_last_line$stem=1
@@ -134,12 +142,19 @@ C_init<-function(lat,
   main_site$from<-main_species$planted
   end_cycle<-as.Date(paste(main_site$from, "-01", sep=""), format = "%Y-%m-%d") %m+% years(management$gm+1)
   main_site$to<-format(end_cycle, "%Y-%m")
-  main_thinning$age<-thinning[2:4,]$age
 
 
   #extending the climate time series
   climate_long<-extend_time(climate=climate,from=main_site$from, length=management$gm+1)
 
+  #the initialization assumes spruce parameterization
+  Qpars<- list(7.00, 0.36, 0.25, 0.50, 0.00, 1.10, 0.50, 7.00, 0.36,
+               0.25, 0.50, 0.00, 1.10, 0.50, 7.00, 0.36, 0.25, 0.50,
+               0.00, 1.10, 0.50, 7.00, 0.36, 0.25, 0.50, 0.00, 1.10, 0.30)
+  names(Qpars)<-(t(my_parsQlitter)[1,])
+
+  my_parsQlitter<-data.frame(parameter=names(Qpars), "Picea abies"=as.vector(unlist(Qpars)))
+  colnames(my_parsQlitter)[2]="Picea abies"
 
   init_out = run_3PG(
     site        = main_site,
@@ -147,72 +162,78 @@ C_init<-function(lat,
     climate     = climate_long,
     thinning    = main_thinning,
     parameters  = parameters,
-    parsQlitter = parsQlitter,
-    soil        = my_soilInit[1,],
+    parsQlitter = my_parsQlitter,
+    soil        = soilInit,
     size_dist   = size_dist,
     settings    = settings,
-    check_input = TRUE, df_out = F)
+    check_input = TRUE,
+    df_out = F)
 
-  soilInit_out<-mat.or.vec(dim(my_species)[1], 5)
-  Qpars<-as.data.frame(t(my_parsQlitter)[-1,])
-  colnames(Qpars)<-(t(my_parsQlitter)[1,])
 
-  for(i in 1:dim(soilInit_out)[1]){
-    soilInit_out[i,1]<-Q_ss(b=as.numeric(Qpars[i,]$beta_fol),
-                            e0=as.numeric(Qpars[i,]$e0_fol),
-                            q0=as.numeric(Qpars[i,]$q0_fol),
-                            u0=u0_calc(lat),
-                            fc=as.numeric(Qpars[i,]$fc_fol),
-                            eta11=as.numeric(Qpars[i,]$eta_11_fol),
-                            Tmax=3,
-                            inputs=mean(init_out[,1,4,7]))
 
-    soilInit_out[i,2]<-Q_ss(b=as.numeric(Qpars[i,]$beta_root),
-                            e0=as.numeric(Qpars[i,]$e0_root),
-                            q0=as.numeric(Qpars[i,]$q0_root),
-                            u0=u0_calc(lat),
-                            fc=as.numeric(Qpars[i,]$fc_root),
-                            eta11=as.numeric(Qpars[i,]$eta_11_root),
-                            Tmax=3,
-                            inputs=mean(init_out[,1,4,8]))
+  soilInit_out<-as.data.frame(mat.or.vec(1, 5))
+  soilInit_out[1]<-Q_ss(b=as.numeric(Qpars$beta_fol),
+                        e0=as.numeric(Qpars$e0_fol),
+                        q0=as.numeric(Qpars$q0_fol),
+                        u0=u0_calc(lat),
+                        fc=as.numeric(Qpars$fc_fol),
+                        eta11=as.numeric(Qpars$eta_11_fol),
+                        Tmax=3,
+                        inputs=mean(init_out[,1,4,7], na.rm = T))
 
-    soilInit_out[i,3]<-Q_ss(b=as.numeric(Qpars[i,]$beta_stem),
-                            e0=as.numeric(Qpars[i,]$e0_stem),
-                            q0=as.numeric(Qpars[i,]$q0_stem),
-                            u0=u0_calc(lat),
-                            fc=as.numeric(Qpars[i,]$fc_stem),
-                            eta11=as.numeric(Qpars[i,]$eta_11_stem),
-                            Tmax=mean(init_out[,1,2,5]),
-                            inputs=mean(init_out[,1,4,12]))
+  soilInit_out[2]<-Q_ss(b=as.numeric(Qpars$beta_root),
+                        e0=as.numeric(Qpars$e0_root),
+                        q0=as.numeric(Qpars$q0_root),
+                        u0=u0_calc(lat),
+                        fc=as.numeric(Qpars$fc_root),
+                        eta11=as.numeric(Qpars$eta_11_root),
+                        Tmax=3,
+                        inputs=mean(init_out[,1,4,8], na.rm = T))
 
-    soilInit_out[i,4]<-Q_ss(b=as.numeric(Qpars[i,]$beta_bran),
-                            e0=as.numeric(Qpars[i,]$e0_bran),
-                            q0=as.numeric(Qpars[i,]$q0_bran),
-                            u0=u0_calc(lat),
-                            fc=as.numeric(Qpars[i,]$fc_bran),
-                            eta11=as.numeric(Qpars[i,]$eta_11_bran),
-                            Tmax=3,
-                            inputs=mean(init_out[,1,4,13]))
+  soilInit_out[3]<-Q_ss(b=as.numeric(Qpars$beta_stem),
+                        e0=as.numeric(Qpars$e0_stem),
+                        q0=as.numeric(Qpars$q0_stem),
+                        u0=u0_calc(lat),
+                        fc=as.numeric(Qpars$fc_stem),
+                        eta11=as.numeric(Qpars$eta_11_stem),
+                        Tmax=mean(init_out[,1,2,5], na.rm=T),
+                        inputs=mean(init_out[,1,4,12], na.rm = T))
 
-    soilInit_out[i,5]<-0
+  soilInit_out[4]<-Q_ss(b=as.numeric(Qpars$beta_bran),
+                        e0=as.numeric(Qpars$e0_bran),
+                        q0=as.numeric(Qpars$q0_bran),
+                        u0=u0_calc(lat),
+                        fc=as.numeric(Qpars$fc_bran),
+                        eta11=as.numeric(Qpars$eta_11_bran),
+                        Tmax=3,
+                        inputs=mean(init_out[,1,4,13], na.rm = T))
 
+  #this pool is not in use in the current model version
+  soilInit_out[5]<-0
+
+
+
+  #calculating the proportions to distribute the initialization
+  species_proportions<-species$stems_n/sum(species$stems_n)
+  species_soilInit_out<-mat.or.vec(dim(species)[1], 5)
+
+  for(i in 1:dim(species_soilInit_out)[1]){
+    species_soilInit_out[i,]<-as.numeric(species_proportions[i]*soilInit_out)
   }
 
-  return(soilInit_out)
+  return(species_soilInit_out)
 
 }
 
 
 
 
-
 #main function for management plan selection
-#' @title The function for determining the appropriate management plan.
+#' @title The function for determining a simulated management plan for a Picea abies pure stand.
 #'
 #' @description
-#' The management.plan functions contains a series of vectors with management data from Sweden.
-#' It selects the most appropriate values based on site index and latitude, and determines the
-#' values for the management plan.
+#' The management_plan function contains a series of vectors with management data from Sweden, for a pure Picea abies stand.
+#' It selects the most appropriate values based on site index and latitude.
 #'
 #' @param SI The site index.
 #' @param Lat The latitude of the simulated site.

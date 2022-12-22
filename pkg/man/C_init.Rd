@@ -2,41 +2,47 @@
 % Please edit documentation in R/Q_ss.R
 \name{C_init}
 \alias{C_init}
-\title{Initializing the steady states of the decomposing pools}
+\title{Initializing the steady states of the decomposing pools (based on a simulated Picea abies stand)}
 \usage{
-C_init(lat, site, species, climate, thinning, parameters, parsQlitter,
-  size_dist, settings = list(light_model = 2, transp_model = 2, phys_model =
-  2, height_model = 1, correct_bias = 0, calculate_d13c = 0))
+C_init(lat, SI, site, species = NULL, climate, thinning = NULL,
+  parameters = NULL, parsQlitter = NULL, size_dist,
+  settings = list(light_model = 2, transp_model = 2, phys_model = 2,
+  height_model = 1, correct_bias = 0, calculate_d13c = 0))
 }
 \arguments{
+\item{SI}{the site index}
+
 \item{site}{refer to \code{\link{run_3PG}}}
 
-\item{species}{refer to \code{\link{run_3PG}}}
+\item{species}{refer to \code{\link{run_3PG}}, default is NULL}
 
 \item{climate}{refer to \code{\link{run_3PG}}}
 
-\item{thinning}{refer to \code{\link{run_3PG}}}
+\item{thinning}{refer to \code{\link{run_3PG}}, default is NULL}
 
-\item{parameters}{refer to \code{\link{run_3PG}}}
+\item{parameters}{refer to \code{\link{run_3PG}}, default is NULL}
 
-\item{parsQlitter}{refer to \code{\link{run_3PG}}}
+\item{parsQlitter}{refer to \code{\link{run_3PG}}, default is NULL}
 
 \item{size_dist}{refer to \code{\link{run_3PG}}}
 
 \item{settings}{refer to \code{\link{run_3PG}}}
 
 \item{latitude}{self explanatory, it is used to initialize the Q model throught the function  refer to \code{\link{u0_calc}}}
-
-\item{soil}{refer to \code{\link{run_3PG}}}
 }
 \description{
 This function utilizes the steady states solutions for the Q decomposition model  \code{\link{Q_ss}} to initialize the decomposing pools assuming that the simulation starts at their steady states, which are determined once the Q model parameters are known and we can assume steady inputs.
- It assumes, with some approximation, as steady inputs of C the average inputs from a whole management cycle.
+ The function assumes, with some approximation, as steady inputs of C the average inputs from a whole management cycle.
+ When initializing multiple layers, the function assigns the initialized C masses calculated from the initialization simulation proportionally to the number of stems of each layer.
+
+If a species and thinning plan is not supplied (default), the function assumes a standard swedish Picea Abies plantation with the functions \code{\link{management_plan}} and \code{\link{sim_thinning}}.
+Otherwise the function assumes a monoculture with the most represented species (but redistributes the initialization in two pools proportional to the number of planted trees per each species). In that case you need to make sure to specify a whole cultural cycle in your thinning matrix!
 }
 \details{
 the function assumes the management plan from the function \code{\link{management_plan}}, which contains the references for standard Swedish clear-cut forestry practices
 The function considers as simulation length the whole cycle indicated by \code{\link{management_plan}} plus one year, and utilizes the function \code{\link{extend_time}} to repeat the provided climatic time series over the needed time.
+Because of this, the function assumes a pure stand of Picea abies as former management.
 }
 \seealso{
-\code{\link{management_plan}}, \code{\link{extend_time}}, \code{\link{u0_calc}}, , \code{\link{Q_ss}}
+\code{\link{management_plan}}, \code{\link{sim_thinning}}, \code{\link{extend_time}}, \code{\link{u0_calc}}, , \code{\link{Q_ss}}
 }

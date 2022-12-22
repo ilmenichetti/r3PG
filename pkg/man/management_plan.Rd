@@ -2,7 +2,7 @@
 % Please edit documentation in R/Q_ss.R
 \name{management_plan}
 \alias{management_plan}
-\title{The function for determining the appropriate management plan.}
+\title{The function for determining a simulated management plan for a Picea abies pure stand.}
 \usage{
 management_plan(SI, Lat)
 }
@@ -15,9 +15,8 @@ management_plan(SI, Lat)
 a data frame with :
 }
 \description{
-The management.plan functions contains a series of vectors with management data from Sweden.
-It selects the most appropriate values based on site index and latitude, and determines the
-values for the management plan.
+The management_plan function contains a series of vectors with management data from Sweden, for a pure Picea abies stand.
+It selects the most appropriate values based on site index and latitude.
 }
 \seealso{
 \code{\link{C_init}}
